@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from tkinter.constants import CASCADE
 
 from cloudinary import CloudinaryImage
@@ -5,6 +6,7 @@ from cloudinary.models import CloudinaryField
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from quanlychungcu import PhieuStatus, PhanAnhStatus
+from django.utils.timezone import now
 
 
 class BaseModel(models.Model):
@@ -24,7 +26,8 @@ class Phong(BaseModel):
 class NguoiDung(AbstractUser):
      avatar = CloudinaryField()
      sdt = models.CharField(max_length=10)
-     phong = models.ForeignKey(Phong,null=True,on_delete=models.PROTECT)
+     birthdate = models.DateField(default=now)
+     phong = models.OneToOneField(Phong,null=True,on_delete=models.PROTECT,blank=True)
 
 class PhieuDongTien(BaseModel):
     nguoi_dung = models.ForeignKey(NguoiDung, on_delete=models.CASCADE, null=False)
