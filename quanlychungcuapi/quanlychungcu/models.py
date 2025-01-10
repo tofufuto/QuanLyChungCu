@@ -24,17 +24,19 @@ class Phong(BaseModel):
         return self.so_phong
 
 class NguoiDung(AbstractUser):
-     avatar = CloudinaryField()
+     avatar = CloudinaryField('avatar',blank=True,null=True)
      sdt = models.CharField(max_length=10)
      birthdate = models.DateField(default=now)
      phong = models.OneToOneField(Phong,null=True,on_delete=models.PROTECT,blank=True)
 
 class PhieuDongTien(BaseModel):
     nguoi_dung = models.ForeignKey(NguoiDung, on_delete=models.CASCADE, null=False)
+    screenshot_xac_nhan = CloudinaryField('image',blank=True,null=True)
     status = models.CharField(max_length=255,null=False,default=PhieuStatus.WAITING.value)
 
 class ChiTietPhieuDongTien(BaseModel):
     phieu = models.ForeignKey(PhieuDongTien,on_delete=models.CASCADE,null=False)
+    ten_dich_vu = models.CharField(max_length=255, null=False,default='KHÁC')
     noi_dung = models.TextField(null=False)
     phi_dong = models.DecimalField(max_digits=12, decimal_places=2,null=False)
 
@@ -73,5 +75,10 @@ class TraLoi(BaseModel):
     nguoi_dung = models.ForeignKey(NguoiDung,on_delete=models.CASCADE,null=False)
     lua_chon = models.ForeignKey(LuaChon,on_delete=models.PROTECT,null=False)
     chi_tiet_khao_sat = models.ForeignKey(ChiTietKhaoSat,on_delete=models.CASCADE,null=False)
+
+class PhiCacDichVu(BaseModel):
+    ten_dich_vu = models.CharField(max_length=255,null=False,default='KHÁC')
+    noi_dung = models.TextField(null=False)
+    phi_dong = models.DecimalField(max_digits=12, decimal_places=2, null=False)
 
 
