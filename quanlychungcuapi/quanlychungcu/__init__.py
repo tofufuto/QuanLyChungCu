@@ -7,4 +7,5 @@ class PhieuStatus(Enum):
 
 class PhanAnhStatus(Enum):
     WAITING = 'WAITING'
-    VIEWED = 'VIEWED'
+    APPROVED = 'APPROVED'
+    REJECTED = 'REJECTED'

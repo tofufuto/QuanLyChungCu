@@ -7,12 +7,13 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from quanlychungcu import PhieuStatus, PhanAnhStatus
 from django.utils.timezone import now
+from django.utils import timezone
 
 
 class BaseModel(models.Model):
     active = models.BooleanField(default=True)
-    created_date = models.DateTimeField(auto_now_add=True)
-    update_date = models.DateTimeField(auto_now=True)
+    created_date = models.DateTimeField(default=datetime.now())
+    update_date = models.DateTimeField(default=datetime.now())
 
     class Meta:
         abstract = True
@@ -40,7 +41,23 @@ class NguoiDung(AbstractUser):
 class PhieuDongTien(BaseModel):
     nguoi_dung = models.ForeignKey(NguoiDung, on_delete=models.CASCADE, null=False)
     screenshot_xac_nhan = CloudinaryField('image',blank=True,null=True)
-    status = models.CharField(max_length=255,null=False,default=PhieuStatus.WAITING.value)
+
+    class StatusChoices(models.TextChoices):
+        WAITING = 'WAITING'
+        APPROVED = 'APPROVED'
+        REJECTED = 'REJECTED'
+
+        # Sử dụng các lựa chọn trong trường status
+
+    status = models.CharField(
+        max_length=20,
+        choices=StatusChoices.choices,
+        default=StatusChoices.WAITING
+    )
+
+    class Meta:
+        verbose_name = "Phiếu Đóng Tiền"
+        verbose_name_plural = "Phiếu Đóng Tiền"
 
 class ChiTietPhieuDongTien(BaseModel):
     phieu = models.ForeignKey(PhieuDongTien,on_delete=models.CASCADE,null=False)
@@ -93,4 +110,11 @@ class PhiCacDichVu(BaseModel):
         verbose_name = "Các chi phí cho phiếu đóng tiền"
         verbose_name_plural = "Các chi phí cho phiếu đóng tiền"
 
+class ThongTinChuyenTien(BaseModel):
+    ngan_hang = models.CharField(max_length=255,null=False,default='KHÁC')
+    so_tai_khoang = models.CharField(max_length=20, null=False,default='---')
+    ten = models.CharField(max_length=255, null=False,default='TÊN')
 
+    class Meta:
+        verbose_name = "Thông tin chuyển tiền"
+        verbose_name_plural = "Thông tin chuyển tiền"
