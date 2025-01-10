@@ -3,7 +3,12 @@ from django.contrib import admin
 from django.utils.html import format_html
 
 from quanlychungcu.models import Phong, NguoiDung, PhieuDongTien, ChiTietPhieuDongTien, KhaoSat, ChiTietKhaoSat, \
-    LuaChon, TuDoDienTu, PhanAnh, TheGiuXeNguoiThan, BaseModel
+    LuaChon, TuDoDienTu, PhanAnh, TheGiuXeNguoiThan, BaseModel, PhiCacDichVu
+
+class MyAdminSite(admin.AdminSite):
+    site_header = "Quản Lý Chung Cư"
+    site_title = "Hệ Thống Quản Lý"
+    index_title = "Trang quản trị hệ thống"
 
 
 class AdminPhong(admin.ModelAdmin):
@@ -51,13 +56,14 @@ class AdminNguoiDung(admin.ModelAdmin):
             obj.set_password(obj.password)
         super().save_model(request, obj, form, change)
     
+class AdminPhiCacDichVu(admin.ModelAdmin):
+    pass
 
 
+admin_site = MyAdminSite(name='Quản Lý Chung Cư')
 
-
-
-admin.site.register(Phong,AdminPhong)
-admin.site.register(NguoiDung,AdminNguoiDung)
-
+admin_site.register(Phong,AdminPhong)
+admin_site.register(NguoiDung,AdminNguoiDung)
+admin_site.register(PhiCacDichVu,AdminPhiCacDichVu)
 
 
