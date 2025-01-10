@@ -23,11 +23,19 @@ class Phong(BaseModel):
     def __str__(self):
         return self.so_phong
 
+    class Meta:
+        verbose_name = "Phòng"
+        verbose_name_plural = "Phòng"
+
 class NguoiDung(AbstractUser):
      avatar = CloudinaryField('avatar',blank=True,null=True)
      sdt = models.CharField(max_length=10)
      birthdate = models.DateField(default=now)
      phong = models.OneToOneField(Phong,null=True,on_delete=models.PROTECT,blank=True)
+
+     class Meta:
+         verbose_name = "Tài khoảng"
+         verbose_name_plural = "Tài khoảng"
 
 class PhieuDongTien(BaseModel):
     nguoi_dung = models.ForeignKey(NguoiDung, on_delete=models.CASCADE, null=False)
@@ -51,7 +59,7 @@ class PhanAnh(BaseModel):
     status = models.CharField(max_length=255,null=False,default=PhanAnhStatus.WAITING.value)
 
 class HinhAnhPhanAnh (BaseModel):
-    image = models.ImageField(upload_to='hinh_anh_phan_anh/%Y/%m/')
+    image = CloudinaryField('image',blank=True,null=True)
 
 class TuDoDienTu(BaseModel):
     ten_do = models.CharField(max_length=255)
@@ -80,5 +88,9 @@ class PhiCacDichVu(BaseModel):
     ten_dich_vu = models.CharField(max_length=255,null=False,default='KHÁC')
     noi_dung = models.TextField(null=False)
     phi_dong = models.DecimalField(max_digits=12, decimal_places=2, null=False)
+
+    class Meta:
+        verbose_name = "Các chi phí cho phiếu đóng tiền"
+        verbose_name_plural = "Các chi phí cho phiếu đóng tiền"
 
 

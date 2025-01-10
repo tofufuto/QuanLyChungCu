@@ -55,6 +55,8 @@ class AdminNguoiDung(admin.ModelAdmin):
         if obj.password and not change:
             obj.set_password(obj.password)
         super().save_model(request, obj, form, change)
+
+
     
 class AdminPhiCacDichVu(admin.ModelAdmin):
     pass
