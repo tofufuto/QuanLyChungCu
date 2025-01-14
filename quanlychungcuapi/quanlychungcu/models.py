@@ -70,6 +70,10 @@ class TheGiuXeNguoiThan(BaseModel):
     so_xe = models.CharField(max_length=255,null=False)
     ten_nguoi_than = models.CharField(max_length=255,null=False)
 
+    class Meta:
+        verbose_name = "Thẻ giữ xe cho người thân"
+        verbose_name_plural = "Thẻ giữ xe cho người thân"
+
 class PhanAnh(BaseModel):
     noi_dung = models.TextField(null=False)
     tieu_de = models.TextField(null=False)

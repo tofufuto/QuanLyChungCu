@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib import admin
+from django.urls import path
 from django.utils.html import format_html
 from django.utils import timezone
 
@@ -33,13 +34,26 @@ class NguoiDungForm(forms.ModelForm):
             'password': forms.PasswordInput(render_value=True),  # Dùng PasswordInput
         }
 
+def tao_phieu_dong_tien(modeladmin, request, queryset):
+    cac_dich_vu = PhiCacDichVu.objects.all()
+    for user in queryset:
+        if user.is_staff or user.is_superuser:
+            continue
+        phieu_dong_tien = PhieuDongTien.objects.create(nguoi_dung=user,screenshot_xac_nhan = None)
+        for dv in cac_dich_vu:
+            chi_tiet_phieu = ChiTietPhieuDongTien.objects.create(phieu=phieu_dong_tien,ten_dich_vu=dv.ten_dich_vu,noi_dung=dv.noi_dung,phi_dong=dv.phi_dong)
+
+    modeladmin.message_user(request, "Đã tạo phiếu")
+    tao_phieu_dong_tien.short_description = "Tạo các phiếu đóng tiền cho người dùng được chọn(trừ admin)"
+
 class AdminNguoiDung(admin.ModelAdmin):
     form = NguoiDungForm
 
     list_display = ['id','first_name','last_name','username','birthdate','date_joined','phong']
     search_fields = ['id','first_name','last_name','username']
-    list_filter = ['birthdate','date_joined']
+    list_filter = ['birthdate','date_joined','is_superuser','is_staff','is_active']
 
+    actions = [tao_phieu_dong_tien]
 
     def get_readonly_fields(self, request, obj=None):
         if obj:
@@ -70,6 +84,7 @@ class AdminPhiCacDichVu(admin.ModelAdmin):
     search_fields = ['ten_dich_vu']
     list_filter = ['created_date']
     readonly_fields = ['created_date','update_date']
+    list_display = ['ten_dich_vu']
 
 class AdminThongTinChuyenTien(admin.ModelAdmin):
     def get_model_perms(self, request):
@@ -134,8 +149,9 @@ class PhieuDongTienAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False  # Trả về False để tắt quyền xóa
 
-
-
+class TheGiuXeAdmin(admin.ModelAdmin):
+    list_display = ['so_xe','nguoi_dung','ten_nguoi_than']
+    readonly_fields = ['so_xe','nguoi_dung','ten_nguoi_than','created_date','update_date']
 
 admin_site = MyAdminSite(name='Quản Lý Chung Cư')
 
@@ -144,5 +160,6 @@ admin_site.register(PhieuDongTien, PhieuDongTienAdmin)
 admin_site.register(NguoiDung,AdminNguoiDung)
 admin_site.register(PhiCacDichVu,AdminPhiCacDichVu)
 admin_site.register(ThongTinChuyenTien,AdminThongTinChuyenTien)
+admin_site.register(TheGiuXeNguoiThan,TheGiuXeAdmin)
 
 

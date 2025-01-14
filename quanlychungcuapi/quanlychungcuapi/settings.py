@@ -39,7 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'quanlychungcu.apps.QuanlychungcuConfig'
+    'quanlychungcu.apps.QuanlychungcuConfig',
+    'rest_framework',
+    'oauth2_provider',
 ]
 
 MIDDLEWARE = [
@@ -146,3 +148,14 @@ cloudinary.config(
     api_secret = "uimTnJY2qmm_IOUE88NSOkNa9ck", # Click 'View API Keys' above to copy your API secret
     secure=True
 )
+
+REST_FRAMEWORK = {
+
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+    )
+}
+
+CLIENT_ID = 'rgOr5W2LqZuNxPVTLrZ30Zse6fihCzkcBSQcSXyP'
+
+CLIENT_SECRET = 'Ap0dDnmwliOnhtv0zyaEx196QnGw5oes7ezqXMlcwyVFp8X8h9XCUeYZDzMwsqlxEpeLc7RwhuA0Z2yaPC3qRKUYLKgGtTAZSPB99QsSEojXFqdvdWWpIOsFWJdwzTja'
