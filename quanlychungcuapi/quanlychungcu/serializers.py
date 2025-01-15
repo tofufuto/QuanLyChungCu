@@ -8,7 +8,8 @@ class PhieuDOngTienSerializer(serializers.ModelSerializer):
         model = PhieuDongTien
         fields =['id','screenshot_xac_nhan','status']
 
-class UserSerializer(serializers.ModelSerializer):
+class NguoiDungSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = NguoiDung
         fields = ['id', 'username', 'password', 'first_name', 'last_name', 'avatar']

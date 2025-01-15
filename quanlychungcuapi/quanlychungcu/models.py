@@ -31,6 +31,7 @@ class Phong(BaseModel):
 class NguoiDung(AbstractUser):
      avatar = CloudinaryField('avatar',blank=True,null=True)
      sdt = models.CharField(max_length=10)
+     cccd = models.CharField(max_length=12)
      birthdate = models.DateField(default=now)
      phong = models.OneToOneField(Phong,null=True,on_delete=models.PROTECT,blank=True)
 

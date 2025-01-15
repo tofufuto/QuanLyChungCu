@@ -57,7 +57,7 @@ class AdminNguoiDung(admin.ModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         if obj:
-            return ['id','first_name','last_name','username','birthdate','date_joined','sdt','email','last_login','is_staff','is_superuser','avatar_display']
+            return ['id','first_name','last_name','username','birthdate','date_joined','sdt','email','last_login','is_staff','is_superuser','avatar_display','cccd']
         return []
 
     def get_exclude(self, request, obj=None):
