@@ -9,6 +9,8 @@ from . import views
 r = DefaultRouter()
 r.register('phieudongtiens',views.PhieuDongTienViewSet,basename='phieudongtien')
 r.register('user',views.NguoiDungViewSet,basename='user')
+r.register('thegiuxes',views.TheGiuXeViewSet,basename='thegiuxe')
+r.register('thongtinchuyentiens',views.ThongTinChuyenTienViewSet,basename='thongtinchuyentien')
 
 urlpatterns = [
 

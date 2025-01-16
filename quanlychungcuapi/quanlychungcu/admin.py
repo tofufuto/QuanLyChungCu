@@ -87,14 +87,8 @@ class AdminPhiCacDichVu(admin.ModelAdmin):
     list_display = ['ten_dich_vu']
 
 class AdminThongTinChuyenTien(admin.ModelAdmin):
-    def get_model_perms(self, request):
-        perms = super().get_model_perms(request)
-        # Tắt quyền 'add' (không cho phép tạo mới)
-        perms['add'] = False
-        return perms
-
-    def has_add_permission(self, request):
-        return False  # Trả về False để tắt nút "Add"
+    list_display = ['ten','so_tai_khoang','ngan_hang']
+    readonly_fields = ['created_date','update_date']
 
 
 class ChiTietPhieuDongTienInline(admin.TabularInline):  # Dùng TabularInline hoặc StackedInline
@@ -129,9 +123,9 @@ class MonthYearFilter(admin.SimpleListFilter):
 
 
 class PhieuDongTienAdmin(admin.ModelAdmin):
-    list_display = ['nguoi_dung', 'status','created_date']
+    list_display = ['id','nguoi_dung', 'status','created_date']
     inlines = [ChiTietPhieuDongTienInline]  # Thêm Inline vào trang admin của PhieuDongTien
-    readonly_fields = ['nguoi_dung', 'screenshot_xac_nhan','created_date','update_date']
+    readonly_fields = ['id','nguoi_dung', 'screenshot_xac_nhan','created_date','update_date']
     list_filter = ['status',MonthYearFilter]
 
     # Ghi đè get_model_perms để tắt quyền 'add' và 'delete' cho model chính

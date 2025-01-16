@@ -61,7 +61,7 @@ class PhieuDongTien(BaseModel):
         verbose_name_plural = "Phiếu Đóng Tiền"
 
 class ChiTietPhieuDongTien(BaseModel):
-    phieu = models.ForeignKey(PhieuDongTien,on_delete=models.CASCADE,null=False)
+    phieu = models.ForeignKey(PhieuDongTien,on_delete=models.CASCADE,null=False,related_name='chitiet_phieudongtiens')
     ten_dich_vu = models.CharField(max_length=255, null=False,default='KHÁC')
     noi_dung = models.TextField(null=False)
     phi_dong = models.DecimalField(max_digits=12, decimal_places=2,null=False)
@@ -76,17 +76,19 @@ class TheGiuXeNguoiThan(BaseModel):
         verbose_name_plural = "Thẻ giữ xe cho người thân"
 
 class PhanAnh(BaseModel):
+    nguoi_dung = models.ForeignKey(NguoiDung, on_delete=models.CASCADE, null=False, related_name='phan_anhs')
     noi_dung = models.TextField(null=False)
     tieu_de = models.TextField(null=False)
     status = models.CharField(max_length=255,null=False,default=PhanAnhStatus.WAITING.value)
 
 class HinhAnhPhanAnh (BaseModel):
+    phan_anh = models.ForeignKey(NguoiDung, on_delete=models.CASCADE, null=False, related_name='hinh_anhs')
     image = CloudinaryField('image',blank=True,null=True)
 
 class TuDoDienTu(BaseModel):
     ten_do = models.CharField(max_length=255)
     mo_ta = models.CharField(max_length=255)
-    nguoi_dung = models.ForeignKey(NguoiDung,on_delete=models.PROTECT,null=False)
+    nguoi_dung = models.ForeignKey(NguoiDung,on_delete=models.PROTECT,null=False,related_name='tu_dos')
 
 class LuaChon(BaseModel):
     ten_lua_chon = models.CharField(max_length=255)
@@ -97,14 +99,14 @@ class LuaChon(BaseModel):
 class KhaoSat(BaseModel):
     ngay_han = models.DateTimeField(null=True)
 
+class NoiDungChiTietKhaoSat(BaseModel):
+    noi_dung = models.TextField(null=False)
+
 class ChiTietKhaoSat(BaseModel):
     noi_dung = models.TextField(null=False)
-    khao_sat = models.ForeignKey(KhaoSat,on_delete=models.CASCADE,null=False)
+    khao_sat = models.ForeignKey(KhaoSat,on_delete=models.CASCADE,null=False,related_name='khao_sats')
+    lua_chon = models.ForeignKey(LuaChon,on_delete=models.PROTECT,null=True,blank=True,related_name='chi_tiet_khao_sats')
 
-class TraLoi(BaseModel):
-    nguoi_dung = models.ForeignKey(NguoiDung,on_delete=models.CASCADE,null=False)
-    lua_chon = models.ForeignKey(LuaChon,on_delete=models.PROTECT,null=False)
-    chi_tiet_khao_sat = models.ForeignKey(ChiTietKhaoSat,on_delete=models.CASCADE,null=False)
 
 class PhiCacDichVu(BaseModel):
     ten_dich_vu = models.CharField(max_length=255,null=False,default='KHÁC')

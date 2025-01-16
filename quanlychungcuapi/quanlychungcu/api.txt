@@ -1,0 +1,48 @@
+Test bằng postman
+Access toke là thứ để nhận biết user nào đang gọi api (oauth2)
+
+lấy access token : http://127.0.0.1:8000/o/token/
+METHOD : POST
+username
+password
+client_id
+client_secret
+grant_type : password
+
+lấy thông tin user bằng AT : http://127.0.0.1:8000/user
+METHOD : GET
+Header : Authorization : Bearer <Access token>
+
+cập nhật mật khẩu và avatar : http://127.0.0.1:8000/user/<id>
+METHOD : PUT
+Header : Authorization : Bearer <Access token>
+password
+avatar
+
+xem tất cả phieu dong tien ủa user: http://127.0.0.1:8000/phieudongtiens (có cả chi tiet phieu)
+METHOD : GET
+Header : Authorization : Bearer <Access token>
+
+xem phieu dong tien ủa user theo phieu id: http://127.0.0.1:8000/phieudongtiens/<id> (có cả chi tiet phieu)
+METHOD : GET
+Header : Authorization : Bearer <Access token>
+
+xem tất cả thẻ giữ xe cho người thân của user : http://127.0.0.1:8000/thegiuxes
+METHOD : GET
+Header : Authorization : Bearer <Access token>
+
+xem thẻ gửi xe cho người thân của user theo id thè : http://127.0.0.1:8000/thegiuxes/<id>
+METHOD : GET
+Header : Authorization : Bearer <Access token>
+
+đăng ký thẻ gửi xe cho người thân của user : http://127.0.0.1:8000/thegiuxes/
+METHOD : POST
+so_xe
+ten_nguoi_than
+
+xóa thẻ gửi xe cho người thân của user theo id thè : http://127.0.0.1:8000/thegiuxes/<id>/
+METHOD : DELETE
+
+xem các thông tin chuyển tiền : http://127.0.0.1:8000/thongtinchuyentiens
+METHOD : GET
+Header : Authorization : Bearer <Access token>

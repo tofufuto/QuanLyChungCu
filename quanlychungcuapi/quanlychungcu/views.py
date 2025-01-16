@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.core.serializers import serialize
 from django.http.multipartparser import MultiPartParser
 from oauthlib.uri_validate import query
@@ -7,33 +9,32 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
 from quanlychungcu import serializers
-from quanlychungcu.models import PhieuDongTien, NguoiDung
+from quanlychungcu.models import PhieuDongTien, NguoiDung, TheGiuXeNguoiThan, ThongTinChuyenTien
 
 
-class PhieuDongTienViewSet(viewsets.ViewSet,generics.ListAPIView):
+class PhieuDongTienViewSet(viewsets.ViewSet,generics.ListAPIView,generics.RetrieveAPIView):
     queryset = PhieuDongTien.objects.filter(active=True).all()
-    serializer_class = serializers.PhieuDOngTienSerializer
+    serializer_class = serializers.PhieuDongTienSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         # Lọc các bản ghi PhieuDongTien cho người dùng hiện tại
         return PhieuDongTien.objects.filter(active=True, nguoi_dung=self.request.user)
 
+    def retrieve(self, request, *args, **kwargs):
+        # Lấy một Phiếu đóng tiền cho người dùng hiện tại
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
 
-class NguoiDungViewSet(viewsets.ViewSet,generics.RetrieveAPIView,generics.UpdateAPIView):
+
+class NguoiDungViewSet(viewsets.ViewSet,generics.ListAPIView,generics.UpdateAPIView):
     queryset = NguoiDung.objects.filter(is_active=True).all()
     serializer_class = serializers.NguoiDungSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    def get_object(self):
-        # Lấy đối tượng người dùng từ URL
-        user = super().get_object()
-
-        # Kiểm tra xem user đang yêu cầu có phải là chính họ không
-        if user != self.request.user:
-            raise PermissionDenied("Invalid access token !")
-
-        return user
+    def get_queryset(self):
+        return NguoiDung.objects.filter(is_active=True,id=self.request.user.id)
 
     def update(self, request, *args, **kwargs):
         # Lấy đối tượng người dùng hiện tại (sau khi kiểm tra quyền sở hữu)
@@ -56,4 +57,37 @@ class NguoiDungViewSet(viewsets.ViewSet,generics.RetrieveAPIView,generics.Update
         serializer = self.get_serializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+class TheGiuXeViewSet(viewsets.ViewSet,generics.ListAPIView,generics.CreateAPIView,generics.RetrieveAPIView,generics.DestroyAPIView):
+    queryset = TheGiuXeNguoiThan.objects.filter(active=True).all()
+    serializer_class = serializers.TheGiuXeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Lọc các bản ghi TheGiuXe cho người dùng hiện tại
+        return TheGiuXeNguoiThan.objects.filter(active=True, nguoi_dung=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        # Lấy dữ liệu từ request
+        data = request.data.copy()  # Tạo bản sao để tránh sửa đổi trực tiếp
+        data['nguoi_dung'] = self.request.user.id  # Gắn ID người dùng hiện tại
+        data['created_date'] = datetime.now()
+
+        # Sử dụng serializer để validate và tạo đối tượng
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        # Trả về phản hồi
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def perform_destroy(self, instance):
+        instance.active = False
+        instance.save()
+
+        super().perform_destroy(instance)
+
+class ThongTinChuyenTienViewSet(viewsets.ViewSet,generics.ListAPIView):
+    queryset = ThongTinChuyenTien.objects.filter(active=True).all()
+    serializer_class = serializers.ThongTinCHuyenTienSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
