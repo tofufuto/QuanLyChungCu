@@ -3,6 +3,7 @@ from django.http.multipartparser import MultiPartParser
 from oauthlib.uri_validate import query
 from rest_framework import generics, viewsets, permissions, status
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
 from quanlychungcu import serializers
@@ -22,16 +23,20 @@ class PhieuDongTienViewSet(viewsets.ViewSet,generics.ListAPIView):
 class NguoiDungViewSet(viewsets.ViewSet,generics.RetrieveAPIView,generics.UpdateAPIView):
     queryset = NguoiDung.objects.filter(is_active=True).all()
     serializer_class = serializers.NguoiDungSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
+    def get_object(self):
+        # Lấy đối tượng người dùng từ URL
+        user = super().get_object()
 
-    def get_permissions(self):
-        if self.action in ['retrieve','update'] :
-            return  [permissions.IsAuthenticated()]
+        # Kiểm tra xem user đang yêu cầu có phải là chính họ không
+        if user != self.request.user:
+            raise PermissionDenied("Invalid access token !")
 
-        return [permissions.AllowAny()]
+        return user
 
     def update(self, request, *args, **kwargs):
-        # Lấy đối tượng người dùng hiện tại
+        # Lấy đối tượng người dùng hiện tại (sau khi kiểm tra quyền sở hữu)
         user = self.get_object()
 
         # Cập nhật mật khẩu nếu có trong request
