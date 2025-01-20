@@ -11,16 +11,22 @@ class ChiTietPhieuDongTienSerializer(serializers.ModelSerializer):
 
 class PhieuDongTienSerializer(serializers.ModelSerializer):
     created_date = serializers.DateTimeField(format="%d-%m-%Y %H:%M:%S")
-    chitiet_phieudongtiens = ChiTietPhieuDongTienSerializer(many=True)  # Đưa các chi tiết vào
+    # chitiet_phieudongtiens = ChiTietPhieuDongTienSerializer(many=True)  # Đưa các chi tiết vào
     tong_tien = serializers.SerializerMethodField()  # Thêm trường tong_tien
 
     class Meta:
         model = PhieuDongTien
-        fields = ['id', 'screenshot_xac_nhan', 'status', 'created_date', 'chitiet_phieudongtiens', 'tong_tien']
+        fields = ['id', 'screenshot_xac_nhan', 'status', 'created_date', 'tong_tien']
 
     def get_tong_tien(self, obj):
         # Tính tổng tiền từ tất cả các ChiTietPhieuDongTien của PhieuDongTien
         return sum([ct.phi_dong for ct in obj.chitiet_phieudongtiens.all()])
+
+class PhieuDongTienChiTietSerializer(PhieuDongTienSerializer):
+    chitiet_phieudongtiens = ChiTietPhieuDongTienSerializer(many=True, read_only=True)  # Chỉ thêm trong chi tiết
+
+    class Meta(PhieuDongTienSerializer.Meta):
+        fields = PhieuDongTienSerializer.Meta.fields + ['chitiet_phieudongtiens']
 
 
 class NguoiDungSerializer(serializers.ModelSerializer):

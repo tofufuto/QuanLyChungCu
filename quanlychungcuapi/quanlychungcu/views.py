@@ -6,26 +6,60 @@ from oauthlib.uri_validate import query
 from rest_framework import generics, viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
 from quanlychungcu import serializers
 from quanlychungcu.models import PhieuDongTien, NguoiDung, TheGiuXeNguoiThan, ThongTinChuyenTien
+from quanlychungcu.serializers import PhieuDongTienChiTietSerializer, PhieuDongTienSerializer
 
 
-class PhieuDongTienViewSet(viewsets.ViewSet,generics.ListAPIView,generics.RetrieveAPIView):
+class PhieuDongTienPagination(PageNumberPagination):
+    page_size = 5  # Số lượng bản ghi trên mỗi trang
+    page_size_query_param = 'page_size'  # Cho phép client tùy chỉnh số lượng bản ghi mỗi trang
+    max_page_size = 5  # Giới hạn tối đa số bản ghi mỗi trang
+
+class PhieuDongTienViewSet(viewsets.ViewSet,generics.ListAPIView,generics.RetrieveAPIView,generics.RetrieveUpdateAPIView):
     queryset = PhieuDongTien.objects.filter(active=True).all()
-    serializer_class = serializers.PhieuDongTienSerializer
+    # serializer_class = serializers.PhieuDongTienSerializer
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = PhieuDongTienPagination
 
     def get_queryset(self):
         # Lọc các bản ghi PhieuDongTien cho người dùng hiện tại
-        return PhieuDongTien.objects.filter(active=True, nguoi_dung=self.request.user)
+        return PhieuDongTien.objects.filter(active=True, nguoi_dung=self.request.user).order_by('-id')
 
     def retrieve(self, request, *args, **kwargs):
         # Lấy một Phiếu đóng tiền cho người dùng hiện tại
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
+
+    def get_serializer_class(self):
+        # Dùng serializer khác nhau cho list và retrieve
+        if self.action == 'retrieve':
+            return PhieuDongTienChiTietSerializer
+        return PhieuDongTienSerializer
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        # Kiểm tra xem phiếu có thuộc về user hiện tại không
+        if instance.nguoi_dung != request.user:
+            return Response({"error": "Invalid Authorization."}, status=status.HTTP_403_FORBIDDEN)
+
+        # Chỉ cập nhật screenshot_xac_nhan
+        file = request.FILES.get('screenshot_xac_nhan')
+        if file:
+            instance.screenshot_xac_nhan = file
+            instance.save()
+            return Response(
+                {"message": "Cập nhật thành công!", "screenshot_xac_nhan": instance.screenshot_xac_nhan.url},
+                status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "Vui lòng cung cấp tệp hình ảnh."}, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 
 class NguoiDungViewSet(viewsets.ViewSet,generics.ListAPIView,generics.UpdateAPIView):

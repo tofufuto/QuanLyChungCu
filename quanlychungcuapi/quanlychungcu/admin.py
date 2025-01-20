@@ -1,3 +1,4 @@
+from PIL.ImageChops import screen
 from django import forms
 from django.contrib import admin
 from django.urls import path
@@ -125,8 +126,10 @@ class MonthYearFilter(admin.SimpleListFilter):
 class PhieuDongTienAdmin(admin.ModelAdmin):
     list_display = ['id','nguoi_dung', 'status','created_date']
     inlines = [ChiTietPhieuDongTienInline]  # Thêm Inline vào trang admin của PhieuDongTien
-    readonly_fields = ['id','nguoi_dung', 'screenshot_xac_nhan','created_date','update_date']
+    readonly_fields = ['id','nguoi_dung', 'screenshot_xac_nhan_display','created_date','update_date']
     list_filter = ['status',MonthYearFilter]
+    search_fields = ['nguoi_dung__username']
+    exclude = ['screenshot_xac_nhan']
 
     # Ghi đè get_model_perms để tắt quyền 'add' và 'delete' cho model chính
     def get_model_perms(self, request):
@@ -142,6 +145,11 @@ class PhieuDongTienAdmin(admin.ModelAdmin):
     # Ghi đè has_delete_permission để tắt quyền xóa
     def has_delete_permission(self, request, obj=None):
         return False  # Trả về False để tắt quyền xóa
+
+    def screenshot_xac_nhan_display(self, obj):
+        if obj.screenshot_xac_nhan:  # Kiểm tra nếu trường avatar có dữ liệu
+            return format_html('<img src="{}" style="height: 800px; width: 450px;" />', obj.screenshot_xac_nhan.url)
+        return "No Image"
 
 class TheGiuXeAdmin(admin.ModelAdmin):
     list_display = ['so_xe','nguoi_dung','ten_nguoi_than']

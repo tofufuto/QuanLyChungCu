@@ -19,13 +19,21 @@ Header : Authorization : Bearer <Access token>
 password
 avatar
 
-xem tất cả phieu dong tien ủa user: http://127.0.0.1:8000/phieudongtiens (có cả chi tiet phieu)
+xem tất cả phieu dong tien ủa user: http://127.0.0.1:8000/phieudongtiens
+http://127.0.0.1:8000/phieudongtiens/?page=1
+http://127.0.0.1:8000/phieudongtiens/?page=1&page_size=2
+(Có phân trang)
 METHOD : GET
 Header : Authorization : Bearer <Access token>
 
 xem phieu dong tien ủa user theo phieu id: http://127.0.0.1:8000/phieudongtiens/<id> (có cả chi tiet phieu)
 METHOD : GET
 Header : Authorization : Bearer <Access token>
+
+cập nhật screenshot cho phiếu đóng tiền : http://127.0.0.1:8000/phieudongtiens/<id>/
+METHOD : PUT
+Header : Authorization : Bearer <Access token>
+screenshot_xac_nhan
 
 xem tất cả thẻ giữ xe cho người thân của user : http://127.0.0.1:8000/thegiuxes
 METHOD : GET
