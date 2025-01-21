@@ -15,4 +15,5 @@ r.register('thongtinchuyentiens',views.ThongTinChuyenTienViewSet,basename='thong
 urlpatterns = [
 
     path('', include(r.urls)),
+    path('vnpay_return/', views.vnpay_return, name='vnpay_return'),
 ]

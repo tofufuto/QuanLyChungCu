@@ -1,3 +1,12 @@
+https://quanlychungcuhuydung.loca.lt
+
+npm install -g localtunnel cài localtunnel
+chạy runserver xong rồi mở 1 command prompt khác chạy
+lt --port 8000 --subdomain quanlychungcuhuydung
+
+Này để test thanh toán vnpay với react native
+
+
 Test bằng postman
 Access toke là thứ để nhận biết user nào đang gọi api (oauth2)
 

@@ -1,7 +1,9 @@
 from datetime import datetime
 
 from django.core.serializers import serialize
+from django.http import JsonResponse
 from django.http.multipartparser import MultiPartParser
+from django.views.decorators.csrf import csrf_exempt
 from oauthlib.uri_validate import query
 from rest_framework import generics, viewsets, permissions, status
 from rest_framework.decorators import action
@@ -9,9 +11,10 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
-from quanlychungcu import serializers
+from quanlychungcu import serializers, VNP_HASHSECRET, PhieuStatus
 from quanlychungcu.models import PhieuDongTien, NguoiDung, TheGiuXeNguoiThan, ThongTinChuyenTien
 from quanlychungcu.serializers import PhieuDongTienChiTietSerializer, PhieuDongTienSerializer
+from quanlychungcu.vnpay import vnpay
 
 
 class PhieuDongTienPagination(PageNumberPagination):
@@ -59,10 +62,39 @@ class PhieuDongTienViewSet(viewsets.ViewSet,generics.ListAPIView,generics.Retrie
         else:
             return Response({"error": "Vui lòng cung cấp tệp hình ảnh."}, status=status.HTTP_400_BAD_REQUEST)
 
+@csrf_exempt
+def vnpay_return(request):
+    inputData = request.GET
+    if inputData:
+        vnp = vnpay()
+        vnp.responseData = inputData.dict()
+        order_id = inputData['vnp_TxnRef']
+        amount = int(inputData['vnp_Amount']) / 100
+        order_desc = inputData['vnp_OrderInfo']
+        vnp_TransactionNo = inputData['vnp_TransactionNo']
+        vnp_ResponseCode = inputData['vnp_ResponseCode']
+        vnp_TmnCode = inputData['vnp_TmnCode']
+        vnp_PayDate = inputData['vnp_PayDate']
+        vnp_BankCode = inputData['vnp_BankCode']
+        vnp_CardType = inputData['vnp_CardType']
+        if vnp.validate_response(VNP_HASHSECRET):
+            if vnp_ResponseCode == "00":
+                phieu = PhieuDongTien.objects.get(id=order_id)
+                # Cập nhật trạng thái phiếu đóng tiền thành approved
+                phieu.status = PhieuStatus.APPROVED.value  # Cập nhật trạng thái là approved
+                phieu.save()  # Lưu thay đổi vào cơ sở dữ liệu
+                return JsonResponse({
+                "message": "Thanh toán thành công!",
+                "data": {
+                    "amount": amount,
+                    "order_id": order_id,
+                }
+            })
+            else:
+                return JsonResponse({"message": "Thanh toán thất bại, vui lòng thử lại.","error_code": vnp_ResponseCode}, status=400)
 
 
-
-class NguoiDungViewSet(viewsets.ViewSet,generics.ListAPIView,generics.UpdateAPIView):
+class NguoiDungViewSet(viewsets.ViewSet,generics.ListAPIView,generics.UpdateAPIView,generics.RetrieveAPIView):
     queryset = NguoiDung.objects.filter(is_active=True).all()
     serializer_class = serializers.NguoiDungSerializer
     permission_classes = [permissions.IsAuthenticated]

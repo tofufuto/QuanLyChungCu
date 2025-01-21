@@ -159,6 +159,8 @@ REST_FRAMEWORK = {
 
 }
 
+ALLOWED_HOSTS = ['.loca.lt', '127.0.0.1', 'localhost']
+
 CLIENT_ID = 'rgOr5W2LqZuNxPVTLrZ30Zse6fihCzkcBSQcSXyP'
 
 CLIENT_SECRET = 'Ap0dDnmwliOnhtv0zyaEx196QnGw5oes7ezqXMlcwyVFp8X8h9XCUeYZDzMwsqlxEpeLc7RwhuA0Z2yaPC3qRKUYLKgGtTAZSPB99QsSEojXFqdvdWWpIOsFWJdwzTja'

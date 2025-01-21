@@ -20,7 +20,7 @@ class BaseModel(models.Model):
 
 class Phong(BaseModel):
     so_phong = models.CharField(max_length=255,unique=True)
-
+    nguoi_dung = models.OneToOneField('NguoiDung',null=True,on_delete=models.PROTECT,blank=True,related_name='phong')
     def __str__(self):
         return self.so_phong
 
@@ -33,7 +33,7 @@ class NguoiDung(AbstractUser):
      sdt = models.CharField(max_length=10)
      cccd = models.CharField(max_length=12)
      birthdate = models.DateField(default=now)
-     phong = models.OneToOneField(Phong,null=True,on_delete=models.PROTECT,blank=True)
+
 
      class Meta:
          verbose_name = "Tài khoảng"

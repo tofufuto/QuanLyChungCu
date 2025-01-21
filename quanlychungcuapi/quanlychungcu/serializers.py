@@ -1,7 +1,11 @@
+from datetime import datetime
+
+import random
 from rest_framework import serializers
 
-from quanlychungcu.models import PhieuDongTien, NguoiDung, TheGiuXeNguoiThan, ThongTinChuyenTien, ChiTietPhieuDongTien
-
+from quanlychungcu import VNP_RETURN_URL, VNP_TMNCODE, VNP_URL, VNP_HASHSECRET
+from quanlychungcu.models import PhieuDongTien, NguoiDung, TheGiuXeNguoiThan, ThongTinChuyenTien, ChiTietPhieuDongTien, \
+    Phong
 
 
 class ChiTietPhieuDongTienSerializer(serializers.ModelSerializer):
@@ -11,7 +15,6 @@ class ChiTietPhieuDongTienSerializer(serializers.ModelSerializer):
 
 class PhieuDongTienSerializer(serializers.ModelSerializer):
     created_date = serializers.DateTimeField(format="%d-%m-%Y %H:%M:%S")
-    # chitiet_phieudongtiens = ChiTietPhieuDongTienSerializer(many=True)  # Đưa các chi tiết vào
     tong_tien = serializers.SerializerMethodField()  # Thêm trường tong_tien
 
     class Meta:
@@ -20,20 +23,55 @@ class PhieuDongTienSerializer(serializers.ModelSerializer):
 
     def get_tong_tien(self, obj):
         # Tính tổng tiền từ tất cả các ChiTietPhieuDongTien của PhieuDongTien
-        return sum([ct.phi_dong for ct in obj.chitiet_phieudongtiens.all()])
+        return int(sum([ct.phi_dong for ct in obj.chitiet_phieudongtiens.all()]))
 
 class PhieuDongTienChiTietSerializer(PhieuDongTienSerializer):
     chitiet_phieudongtiens = ChiTietPhieuDongTienSerializer(many=True, read_only=True)  # Chỉ thêm trong chi tiết
+    vnpay_url = serializers.SerializerMethodField()
 
     class Meta(PhieuDongTienSerializer.Meta):
-        fields = PhieuDongTienSerializer.Meta.fields + ['chitiet_phieudongtiens']
+        fields = PhieuDongTienSerializer.Meta.fields + ['chitiet_phieudongtiens','vnpay_url']
 
+    def get_vnpay_url(self, obj):
+        from quanlychungcu.vnpay import vnpay  # Import class VNPay đã cấu hình
+        vnPay = vnpay()
+
+        order_type = 'other'
+        order_id = str(obj.id)
+        amount = sum([ct.phi_dong for ct in obj.chitiet_phieudongtiens.all()])
+        order_desc = f"Thanh toán phiếu đóng tiền {order_id}"
+        ipaddr = self.context.get('request').META.get('REMOTE_ADDR')
+        if not ipaddr:
+            ipaddr = self.context.get('request').META.get('HTTP_X_FORWARDED_FOR', '').split(',')[0]
+        # Build URL Payment
+        vnp = vnpay()
+        vnp.requestData['vnp_Version'] = '2.1.0'
+        vnp.requestData['vnp_Command'] = 'pay'
+        vnp.requestData['vnp_TmnCode'] = VNP_TMNCODE
+        vnp.requestData['vnp_Amount'] = int(amount * 100)
+        vnp.requestData['vnp_CurrCode'] = 'VND'
+        vnp.requestData['vnp_TxnRef'] = order_id
+        vnp.requestData['vnp_OrderInfo'] = order_desc
+        vnp.requestData['vnp_OrderType'] = order_type
+        vnp.requestData['vnp_Locale'] = 'vn'
+        vnp.requestData['vnp_CreateDate'] = datetime.now().strftime('%Y%m%d%H%M%S')  # 20150410063022
+        vnp.requestData['vnp_IpAddr'] = ipaddr
+        vnp.requestData['vnp_ReturnUrl'] = VNP_RETURN_URL
+        vnpay_payment_url = vnp.get_payment_url(VNP_URL, VNP_HASHSECRET)
+
+        return vnpay_payment_url
+
+
+class PhongSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Phong
+        fields = ['id', 'so_phong']
 
 class NguoiDungSerializer(serializers.ModelSerializer):
-
+    phong = PhongSerializer(read_only=True)
     class Meta:
         model = NguoiDung
-        fields = ['id', 'username', 'password', 'first_name', 'last_name', 'avatar']
+        fields = ['id', 'username', 'password', 'first_name', 'last_name', 'avatar','sdt','cccd','birthdate','phong']
         extra_kwargs = {
             'password': {
                 'write_only': True
