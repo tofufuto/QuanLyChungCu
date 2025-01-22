@@ -1,0 +1,47 @@
+{% extends 'admin/base_site.html' %}
+{% block content %}
+<h1>Các phòng hiện có : </h1>
+<h1>Tổng phòng : {{total_phong}}</h1>
+<h1>Phòng trống : {{phong_trong}}</h1>
+<h1>Phòng đã có người : {{phong_da_co_nguoi}}</h1>
+<h1>Năm {{current_year}}</h1>
+<h2>Tổng doanh thu {{tong_dt}} VND</h2>
+
+<div>
+    <canvas id="myChart"></canvas>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+
+
+window.onload = function() {
+  const ctx = document.getElementById('myChart');
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6','Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12'],
+      datasets: [{
+        label: 'Doanh thu VND',
+        data: [{{dt_1}},{{dt_2}},{{dt_3}},{{dt_4}},{{dt_5}},{{dt_6}},{{dt_7}},{{dt_8}},{{dt_9}},{{dt_10}},{{dt_11}},{{dt_12}}],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+ }
+
+
+</script>
+
+{% endblock %}

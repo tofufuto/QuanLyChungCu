@@ -1,10 +1,17 @@
+from datetime import datetime
+from itertools import count
+from venv import create
+
 from PIL.ImageChops import screen
 from django import forms
 from django.contrib import admin
+from django.db.models import Sum
+from django.db.models.functions import TruncMonth
+from django.template.response import TemplateResponse
 from django.urls import path
 from django.utils.html import format_html
 from django.utils import timezone
-
+from urllib3 import request
 
 from quanlychungcu.models import Phong, NguoiDung, PhieuDongTien, ChiTietPhieuDongTien, KhaoSat, ChiTietKhaoSat, \
     LuaChon, TuDoDienTu, PhanAnh, TheGiuXeNguoiThan, BaseModel, PhiCacDichVu, ThongTinChuyenTien
@@ -15,6 +22,93 @@ class MyAdminSite(admin.AdminSite):
     site_title = "Hệ Thống Quản Lý"
     index_title = "Trang quản trị hệ thống"
 
+    def get_urls(self):
+        return [path('quanlychungcu-stats/',self.stats)] + super().get_urls()
+
+    def stats(self,request):
+        # Tổng số phòng
+        total_phong = Phong.objects.count()
+
+        # Số phòng chưa gán cho user
+        phong_trong = Phong.objects.filter(nguoi_dung__isnull=True).count()
+
+        # Số phòng đã gán cho user
+        phong_da_co_nguoi = Phong.objects.filter(nguoi_dung__isnull=False).count()
+
+        current_year = datetime.now().year
+
+        phieu_dong_tien= PhieuDongTien.objects.filter(status=PhieuDongTien.StatusChoices.APPROVED, created_date__year=current_year).all()
+
+        dt_1 = 0
+        dt_2 = 0
+        dt_3 = 0
+        dt_4 = 0
+        dt_5 = 0
+        dt_6 = 0
+        dt_7 = 0
+        dt_8 = 0
+        dt_9 = 0
+        dt_10 = 0
+        dt_11 = 0
+        dt_12 = 0
+
+        for pdt in phieu_dong_tien:
+            if pdt.created_date.month == 1 :
+                dt_1 += sum([ct.phi_dong for ct in pdt.chitiet_phieudongtiens.all()])
+            if pdt.created_date.month == 2 :
+                dt_2 += sum([ct.phi_dong for ct in pdt.chitiet_phieudongtiens.all()])
+            if pdt.created_date.month == 3 :
+                dt_3 += sum([ct.phi_dong for ct in pdt.chitiet_phieudongtiens.all()])
+            if pdt.created_date.month == 4 :
+                dt_4 += sum([ct.phi_dong for ct in pdt.chitiet_phieudongtiens.all()])
+            if pdt.created_date.month == 5 :
+                dt_5 += sum([ct.phi_dong for ct in pdt.chitiet_phieudongtiens.all()])
+            if pdt.created_date.month == 6 :
+                dt_6 += sum([ct.phi_dong for ct in pdt.chitiet_phieudongtiens.all()])
+            if pdt.created_date.month == 7 :
+                dt_7 += sum([ct.phi_dong for ct in pdt.chitiet_phieudongtiens.all()])
+            if pdt.created_date.month == 8 :
+                dt_8 += sum([ct.phi_dong for ct in pdt.chitiet_phieudongtiens.all()])
+            if pdt.created_date.month == 9 :
+                dt_9 += sum([ct.phi_dong for ct in pdt.chitiet_phieudongtiens.all()])
+            if pdt.created_date.month == 10 :
+                dt_10 += sum([ct.phi_dong for ct in pdt.chitiet_phieudongtiens.all()])
+            if pdt.created_date.month == 11 :
+                dt_11 += sum([ct.phi_dong for ct in pdt.chitiet_phieudongtiens.all()])
+            if pdt.created_date.month == 12 :
+                dt_12 += sum([ct.phi_dong for ct in pdt.chitiet_phieudongtiens.all()])
+
+        tong_dt = int( dt_1+dt_2+dt_3+dt_4+dt_5+dt_6+dt_7+dt_8+dt_9+dt_10+dt_11+dt_12)
+
+        return TemplateResponse(request, 'admin/stats.html', {
+            'total_phong': total_phong,
+            'phong_trong': phong_trong,
+            'phong_da_co_nguoi': phong_da_co_nguoi,
+            'current_year': current_year,
+            'dt_1' : dt_1,
+            'dt_2' : dt_2,
+            'dt_3' : dt_3,
+            'dt_4' : dt_4,
+            'dt_5' : dt_5,
+            'dt_6' : dt_6,
+            'dt_7' : dt_7,
+            'dt_8' : dt_8,
+            'dt_9' : dt_9,
+            'dt_10' : dt_10,
+            'dt_11': dt_11,
+            'dt_12' : dt_12,
+            'tong_dt' : tong_dt,
+        })
+
+    def get_app_list(self, request):
+        # Add custom link to admin index page
+        app_list = super().get_app_list(request)
+        app_list.append({
+            'name': 'Thống kê',
+            'app_url': '/admin/quanlychungcu-stats/',
+            'models': []
+        })
+        return app_list
 
 class AdminPhong(admin.ModelAdmin):
     list_display = ['id','so_phong','created_date']
