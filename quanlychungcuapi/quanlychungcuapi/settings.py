@@ -84,7 +84,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'qlchungcudb',
         'USER': 'root',
-        'PASSWORD': '###', #pass của mysql
+        'PASSWORD': 'Kochiyasanae!@7', #pass của mysql
         'HOST': 'localhost'  # mặc định localhost
     }
 }

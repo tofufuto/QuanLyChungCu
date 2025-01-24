@@ -103,12 +103,45 @@ class MyAdminSite(admin.AdminSite):
     def get_app_list(self, request):
         # Add custom link to admin index page
         app_list = super().get_app_list(request)
-        app_list.append({
+        # Tạo danh mục (sections)
+        categories = {
+            'Thu Phí': [],
+            'Quản Lý Phòng': [],
+            'Tài Khoản': [],
+            'Khác': [],
+        }
+
+        # Duyệt qua danh sách app của Django Admin
+        for app in app_list:
+            for model in app.get("models", []):
+                model_name = model['object_name']
+
+                # Phân loại model vào danh mục phù hợp
+                if model_name in ['PhieuDongTien', 'ChiTietPhieuDongTien', 'ThongTinChuyenTien','PhiCacDichVu']:
+                    categories['Thu Phí'].append(model)
+                elif model_name in ['Phong']:
+                    categories['Quản Lý Phòng'].append(model)
+                elif model_name in ['NguoiDung']:
+                    categories['Tài Khoản'].append(model)
+                else:
+                    categories['Khác'].append(model)
+
+        # Xây dựng danh sách mới có nhóm danh mục
+        new_app_list = []
+        for category, models in categories.items():
+            if models:
+                new_app_list.append({
+                    'name': category,  # Tên nhóm
+                    'app_url': None,  # Không có URL, chỉ là nhóm
+                    'models': models
+                })
+        new_app_list.append({
             'name': 'Thống kê',
             'app_url': '/admin/quanlychungcu-stats/',
             'models': []
         })
-        return app_list
+        return new_app_list
+
 
 class AdminPhong(admin.ModelAdmin):
     list_display = ['id','so_phong','created_date']
@@ -186,13 +219,21 @@ class AdminThongTinChuyenTien(admin.ModelAdmin):
     readonly_fields = ['created_date','update_date']
 
 
-class ChiTietPhieuDongTienInline(admin.TabularInline):  # Dùng TabularInline hoặc StackedInline
+class ChiTietPhieuDongTienInline(admin.TabularInline):
     model = ChiTietPhieuDongTien
-    fields = ['ten_dich_vu', 'noi_dung', 'phi_dong']  # Các trường hiển thị trong form admin
-    readonly_fields = ['ten_dich_vu', 'noi_dung', 'phi_dong']  # Các trường chỉ đọc
+    fields = ['ten_dich_vu', 'noi_dung', 'formatted_phi_dong']  # Sử dụng phương thức tùy chỉnh
+    readonly_fields = ['ten_dich_vu', 'noi_dung', 'formatted_phi_dong']  # Trường chỉ đọc
     extra = 0  # Không hiển thị form thêm mới
     max_num = 0
     can_delete = False  # Tắt khả năng xóa
+
+    def formatted_phi_dong(self, obj):
+        """Hiển thị phi_dong dưới dạng số nguyên và thêm 'VND'. Nếu None thì hiển thị '0 VND'."""
+        if obj.phi_dong is not None:
+            return f"{int(obj.phi_dong):,} VND"  # Định dạng có dấu phẩy
+        return "0 VND"  # Trường hợp phi_dong bị None
+
+    formatted_phi_dong.short_description = "Phí Đóng (VND)"
 
 class MonthYearFilter(admin.SimpleListFilter):
     title = 'Tháng và Năm'  # Tiêu đề của bộ lọc
@@ -218,12 +259,19 @@ class MonthYearFilter(admin.SimpleListFilter):
 
 
 class PhieuDongTienAdmin(admin.ModelAdmin):
-    list_display = ['id','nguoi_dung', 'status','created_date']
+    list_display = ['id','nguoi_dung', 'status','created_date','tong_tien']
     inlines = [ChiTietPhieuDongTienInline]  # Thêm Inline vào trang admin của PhieuDongTien
-    readonly_fields = ['id','nguoi_dung', 'screenshot_xac_nhan_display','created_date','update_date']
+    readonly_fields = ['id','nguoi_dung', 'screenshot_xac_nhan_display','created_date','update_date','tong_tien']
     list_filter = ['status',MonthYearFilter]
     search_fields = ['nguoi_dung__username']
     exclude = ['screenshot_xac_nhan']
+
+    def tong_tien(self, obj):
+        """Tính tổng tiền từ các chi tiết phiếu."""
+        total = sum(ct.phi_dong for ct in obj.chitiet_phieudongtiens.all() if ct.phi_dong is not None)
+        return f"{int(total):,} VND"  # Định dạng số có dấu phẩy
+
+    tong_tien.short_description = "Tổng tiền"
 
     # Ghi đè get_model_perms để tắt quyền 'add' và 'delete' cho model chính
     def get_model_perms(self, request):
@@ -244,6 +292,7 @@ class PhieuDongTienAdmin(admin.ModelAdmin):
         if obj.screenshot_xac_nhan:  # Kiểm tra nếu trường avatar có dữ liệu
             return format_html('<img src="{}" style="height: 800px; width: 450px;" />', obj.screenshot_xac_nhan.url)
         return "No Image"
+
 
 class TheGiuXeAdmin(admin.ModelAdmin):
     list_display = ['so_xe','nguoi_dung','ten_nguoi_than']

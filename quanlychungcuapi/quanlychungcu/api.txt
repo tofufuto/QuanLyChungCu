@@ -8,7 +8,7 @@ Này để test thanh toán vnpay với react native
 
 
 Test bằng postman
-Access toke là thứ để nhận biết user nào đang gọi api (oauth2)
+Access token là thứ để nhận biết user nào đang gọi api (oauth2)
 
 lấy access token : http://127.0.0.1:8000/o/token/
 METHOD : POST
