@@ -159,7 +159,11 @@ REST_FRAMEWORK = {
 
 }
 
-ALLOWED_HOSTS = ['.loca.lt', '127.0.0.1', 'localhost']
+CSRF_TRUSTED_ORIGINS = [
+    "https://quanlychungcuhuydung.loca.lt"
+]
+
+ALLOWED_HOSTS = ['.loca.lt', '127.0.0.1', 'localhost','quanlychungcuhuydung.loca.lt']
 
 CLIENT_ID = 'rgOr5W2LqZuNxPVTLrZ30Zse6fihCzkcBSQcSXyP'
 
