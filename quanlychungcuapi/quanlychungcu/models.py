@@ -33,6 +33,7 @@ class NguoiDung(AbstractUser):
      sdt = models.CharField(max_length=10)
      cccd = models.CharField(max_length=12)
      birthdate = models.DateField(default=now)
+     thong_bao = models.BooleanField(default=False, verbose_name="Thông báo đơn hàng")
 
 
      class Meta:
@@ -88,6 +89,10 @@ class HinhAnhPhanAnh (BaseModel):
 class TuDoDienTu(BaseModel):
     ten_do = models.CharField(max_length=255)
     mo_ta = models.CharField(max_length=255)
+    trang_thai = models.CharField(max_length=50, choices=[
+        ('empty', 'Trống'),
+        ('stocked', 'Có hàng')
+    ], default='empty', verbose_name="Trạng thái")
     nguoi_dung = models.ForeignKey(NguoiDung,on_delete=models.PROTECT,null=False,related_name='tu_dos')
 
 class LuaChon(BaseModel):

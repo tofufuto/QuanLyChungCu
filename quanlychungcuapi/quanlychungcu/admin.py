@@ -108,6 +108,7 @@ class MyAdminSite(admin.AdminSite):
             'Thu Phí': [],
             'Quản Lý Phòng': [],
             'Tài Khoản': [],
+            'Tủ đồ điện tử': [],
             'Khác': [],
         }
 
@@ -298,6 +299,29 @@ class TheGiuXeAdmin(admin.ModelAdmin):
     list_display = ['so_xe','nguoi_dung','ten_nguoi_than']
     readonly_fields = ['so_xe','nguoi_dung','ten_nguoi_than','created_date','update_date']
 
+
+class TuDoDienTuAdmin(admin.ModelAdmin):
+    list_display = ('ten_do', 'trang_thai', 'nguoi_dung')
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+
+        # Nếu trạng thái được đặt thành "Có hàng", bật thông báo cho người dùng
+        if obj.status == 'stocked':
+            NguoiDung.objects.filter(id=obj.nguoi_dung.id).update(thong_bao=True)
+        elif obj.status == 'empty':
+            NguoiDung.objects.filter(id=obj.nguoi_dung.id).update(thong_bao=False)
+
+    def update_status(request):
+        if request.method == 'POST':
+            user = request.user
+            # Đặt trạng thái tủ đồ thành "empty"
+            TuDoDienTu.objects.filter(nguoi_dung=user, status='stocked').update(status='empty')
+            # Tắt thông báo
+            user.thong_bao = False
+            user.save()
+
+
 admin_site = MyAdminSite(name='Quản Lý Chung Cư')
 
 admin_site.register(Phong,AdminPhong)
@@ -306,5 +330,6 @@ admin_site.register(NguoiDung,AdminNguoiDung)
 admin_site.register(PhiCacDichVu,AdminPhiCacDichVu)
 admin_site.register(ThongTinChuyenTien,AdminThongTinChuyenTien)
 admin_site.register(TheGiuXeNguoiThan,TheGiuXeAdmin)
+admin.site.register(TuDoDienTu, TuDoDienTuAdmin)
 
 
