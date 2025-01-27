@@ -12,7 +12,8 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
 from quanlychungcu import serializers, VNP_HASHSECRET, PhieuStatus
-from quanlychungcu.models import PhieuDongTien, NguoiDung, TheGiuXeNguoiThan, ThongTinChuyenTien
+from quanlychungcu.models import PhieuDongTien, NguoiDung, TheGiuXeNguoiThan, ThongTinChuyenTien, TuDoDienTu, PhanAnh, \
+    KhaoSat
 from quanlychungcu.serializers import PhieuDongTienChiTietSerializer, PhieuDongTienSerializer
 from quanlychungcu.vnpay import vnpay
 
@@ -155,5 +156,20 @@ class TheGiuXeViewSet(viewsets.ViewSet,generics.ListAPIView,generics.CreateAPIVi
 class ThongTinChuyenTienViewSet(viewsets.ViewSet,generics.ListAPIView):
     queryset = ThongTinChuyenTien.objects.filter(active=True).all()
     serializer_class = serializers.ThongTinCHuyenTienSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+class TuDoDienTuViewSet(viewsets.ViewSet,generics.ListAPIView):
+    queryset = TuDoDienTu.objects.filter(active=True).all()
+    serializer_class = serializers.TuDoDienTuSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+class PhanAnhViewSet(viewsets.ViewSet,generics.ListAPIView):
+    queryset = PhanAnh.objects.filter(active=True).all()
+    serializer_class = serializers.PhanAnhSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+class KhaoSatViewSet(viewsets.ViewSet,generics.ListAPIView):
+    queryset = KhaoSat.objects.all()
+    serializer_class = serializers.KhaoSatSerializer
     permission_classes = [permissions.IsAuthenticated]
 

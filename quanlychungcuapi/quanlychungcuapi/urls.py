@@ -15,15 +15,17 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
+from rest_framework.templatetags import rest_framework
+
 from quanlychungcu.admin import admin_site
+
 
 urlpatterns = [
 
     path('', include('quanlychungcu.urls')),
     path('admin/', admin_site.urls),
-
+    re_path(r'^ckeditor/', include('ckeditor_uploader.urls')),
     path('o/',include('oauth2_provider.urls',namespace='oauth2_provider')),
+
 ]
-
-

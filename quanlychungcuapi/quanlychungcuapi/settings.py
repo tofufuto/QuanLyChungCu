@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 
+from ckeditor_demo.settings import CKEDITOR_UPLOAD_PATH
 from django.conf.global_settings import AUTH_USER_MODEL
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -42,7 +43,10 @@ INSTALLED_APPS = [
     'quanlychungcu.apps.QuanlychungcuConfig',
     'rest_framework',
     'oauth2_provider',
+    'ckeditor',
+    'ckeditor_uploader',
 ]
+CKEDITOR_UPLOAD_PATH="ckeditor/images"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -84,7 +88,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'qlchungcudb',
         'USER': 'root',
-        'PASSWORD': '###', #pass của mysql
+        'PASSWORD': 'Admin@123', #pass của mysql
         'HOST': 'localhost'  # mặc định localhost
     }
 }

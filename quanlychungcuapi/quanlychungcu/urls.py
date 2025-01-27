@@ -11,6 +11,9 @@ r.register('phieudongtiens',views.PhieuDongTienViewSet,basename='phieudongtien')
 r.register('user',views.NguoiDungViewSet,basename='user')
 r.register('thegiuxes',views.TheGiuXeViewSet,basename='thegiuxe')
 r.register('thongtinchuyentiens',views.ThongTinChuyenTienViewSet,basename='thongtinchuyentien')
+r.register('tudodientus',views.TuDoDienTuViewSet,basename='tudodientu')
+r.register('phananhs',views.PhanAnhViewSet,basename='phananh')
+r.register('khaosats',views.KhaoSatViewSet,basename='khaosat')
 
 urlpatterns = [
 

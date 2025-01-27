@@ -7,20 +7,27 @@ from django import forms
 from django.contrib import admin
 from django.db.models import Sum
 from django.db.models.functions import TruncMonth
+from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
-from django.urls import path
+from django.urls import path, reverse
 from django.utils.html import format_html
 from django.utils import timezone
 from urllib3 import request
 
-from quanlychungcu.models import Phong, NguoiDung, PhieuDongTien, ChiTietPhieuDongTien, KhaoSat, ChiTietKhaoSat, \
-    LuaChon, TuDoDienTu, PhanAnh, TheGiuXeNguoiThan, BaseModel, PhiCacDichVu, ThongTinChuyenTien
+from django import  forms
+from ckeditor_uploader.widgets import CKEditorUploadingWidget
+
+from quanlychungcu.models import Phong, NguoiDung, PhieuDongTien, ChiTietPhieuDongTien, KhaoSat, \
+    TuDoDienTu, PhanAnh, TheGiuXeNguoiThan, BaseModel, PhiCacDichVu, ThongTinChuyenTien, \
+    CauHoi, ThucHienKhaoSat
 
 
 class MyAdminSite(admin.AdminSite):
     site_header = "Quản Lý Chung Cư"
     site_title = "Hệ Thống Quản Lý"
     index_title = "Trang quản trị hệ thống"
+
+
 
     def get_urls(self):
         return [path('quanlychungcu-stats/',self.stats)] + super().get_urls()
@@ -108,6 +115,9 @@ class MyAdminSite(admin.AdminSite):
             'Thu Phí': [],
             'Quản Lý Phòng': [],
             'Tài Khoản': [],
+            'Tủ đồ điện tử': [],
+            'Phản ánh': [],
+            'Khảo sát': [],
             'Khác': [],
         }
 
@@ -123,6 +133,12 @@ class MyAdminSite(admin.AdminSite):
                     categories['Quản Lý Phòng'].append(model)
                 elif model_name in ['NguoiDung']:
                     categories['Tài Khoản'].append(model)
+                elif model_name in ['TuDoDienTu']:
+                    categories['Tủ đồ điện tử'].append(model)
+                elif model_name in ['PhanAnh']:
+                    categories['Phản ánh'].append(model)
+                elif model_name in ['KhaoSat', 'CauHoi']:
+                    categories['Khảo sát'].append(model)
                 else:
                     categories['Khác'].append(model)
 
@@ -207,7 +223,7 @@ class AdminNguoiDung(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
 
-    
+
 class AdminPhiCacDichVu(admin.ModelAdmin):
     search_fields = ['ten_dich_vu']
     list_filter = ['created_date']
@@ -298,6 +314,130 @@ class TheGiuXeAdmin(admin.ModelAdmin):
     list_display = ['so_xe','nguoi_dung','ten_nguoi_than']
     readonly_fields = ['so_xe','nguoi_dung','ten_nguoi_than','created_date','update_date']
 
+
+
+class TuDoDienTuAdmin(admin.ModelAdmin):
+    list_display = ('ten_do', 'trang_thai', 'nguoi_dung','ngay_nhan_hang')
+    list_filter = ('trang_thai',)
+    search_fields = ('tieu_de', 'noi_dung', 'nguoi_dung')
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+
+        # Nếu trạng thái được đặt thành "Có hàng", bật thông báo cho người dùng
+        if obj.trang_thai == 'stocked':
+            NguoiDung.objects.filter(id=obj.nguoi_dung.id).update(thong_bao=True)
+        elif obj.trang_thai == 'empty':
+            NguoiDung.objects.filter(id=obj.nguoi_dung.id).update(thong_bao=False)
+
+    def mark_as_processed(self, request, queryset):
+        updated = queryset.update(trang_thai='stocked')
+        self.message_user(request, f"{updated} Tủ đồ đã được đánh dấu là 'Có hàng '.")
+
+    mark_as_processed.short_description = "Đánh dấu là có đơn hàng"
+    actions = ['mark_as_processed']
+
+
+class PhanAnhAdmin(admin.ModelAdmin):
+    list_display = ('tieu_de', 'nguoi_dung', 'status', 'short_noi_dung')
+    list_display_links = ('tieu_de',)
+    list_filter = ('status',)
+    search_fields = ('tieu_de', 'noi_dung', 'nguoi_dung__username')
+
+    def short_noi_dung(self, obj):
+        max_length = 50  # Đặt độ dài tối đa
+        content = obj.noi_dung
+        if len(content) > max_length:
+            content = content[:max_length] + '...'  # Cắt bớt và thêm dấu "..."
+        return format_html('<span>{}</span>', content)
+    short_noi_dung.short_description = 'Nội dung'
+    # Chỉ hiển thị trường trạng thái khi đã lưu
+    def get_readonly_fields(self, request, obj=None):
+        if obj:  # Khi đang chỉnh sửa một phản ánh đã tồn tại
+            return ['tieu_de', 'noi_dung', 'nguoi_dung']
+        return []
+
+
+    def mark_as_processed(self, request, queryset):
+        updated = queryset.update(status='processed')
+        self.message_user(request, f"{updated} phản ánh đã được đánh dấu là 'Đã xử lý'.")
+
+    def delete_selected_override(self, request, queryset):
+        count = queryset.count()
+        queryset.delete()
+        self.message_user(request, f"{count} phản ánh đã được xóa thành công.")
+
+
+    # Tùy chỉnh trang chi tiết
+    fields = ('tieu_de', 'noi_dung', 'nguoi_dung', 'status')
+
+    mark_as_processed.short_description = "Đánh dấu là Đã xử lý"
+    # Thêm hành động xóa vào danh sách hành động
+    # Action để chuyển đến trang chi tiết
+    def view_detail(self, request, queryset):
+        if queryset.count() == 1:  # Chỉ cho phép khi có đúng 1 mục được chọn
+            obj = queryset.first()
+            detail_url = reverse('admin:%s_%s_change' % (obj._meta.app_label, obj._meta.model_name), args=[obj.pk])
+            return HttpResponseRedirect(detail_url)
+        else:
+            self.message_user(request, "Vui lòng chỉ chọn đúng một sản phẩm để xem chi tiết.", level='error')
+
+    view_detail.short_description = "Xem chi tiết sản phẩm"
+
+    # Thêm hành động vào danh sách
+    actions = ['mark_as_processed', 'view_detail',]
+
+class KhaoSatAdmin(admin.ModelAdmin):
+    list_display = ('ten_khao_sat', 'ngay_han')
+    search_fields = ('ten_khao_sat',)
+    list_filter = ('ngay_han',)
+
+    def view_detail(self, request, queryset):
+        if queryset.count() == 1:  # Chỉ cho phép khi có đúng 1 mục được chọn
+            obj = queryset.first()
+            detail_url = reverse('admin:%s_%s_change' % (obj._meta.app_label, obj._meta.model_name), args=[obj.pk])
+            return HttpResponseRedirect(detail_url)
+        else:
+            self.message_user(request, "Vui lòng chỉ chọn đúng một sản phẩm để xem chi tiết.", level='error')
+
+    view_detail.short_description = "Xem chi tiết sản phẩm"
+
+    # Thêm hành động vào danh sách
+    actions = ['view_detail' ]
+
+
+class ThuHienKhaoSatAdmin(admin.ModelAdmin):
+    pass
+class CauHoiAdmin(admin.ModelAdmin):
+    list_display = ('noi_dung_cau_hoi', 'khaosat', )
+    search_fields = ('noi_dung_cau_hoi',)
+    list_filter = ('khaosat', )
+    # Thêm bộ lọc dọc cho trường ForeignKey
+    raw_id_fields = ('khaosat',)
+
+    # Chỉ hiển thị trường readonly phù hợp
+    def get_fields(self, request, obj=None):
+        fields = super().get_fields(request, obj)
+        if obj:  # Nếu đang chỉnh sửa, ẩn trường update_date
+            fields = [field for field in fields if field not in ('created_date', 'update_date')]
+        else:  # Nếu tạo mới, ẩn trường created_date
+            fields = [field for field in fields if field != 'update_date']
+        return fields
+
+    # Tùy chỉnh chức năng "Xem chi tiết"
+    def view_detail(self, request, queryset):
+        if queryset.count() == 1:  # Chỉ cho phép khi có đúng 1 mục được chọn
+            obj = queryset.first()
+            detail_url = reverse('admin:%s_%s_change' % (obj._meta.app_label, obj._meta.model_name), args=[obj.pk])
+            return HttpResponseRedirect(detail_url)
+        else:
+            self.message_user(request, "Vui lòng chỉ chọn đúng một câu hỏi để xem chi tiết.", level='error')
+
+    view_detail.short_description = "Chỉnh sửa câu hỏi"
+
+    # Thêm hành động vào danh sách
+    actions = ['view_detail' ]
+
 admin_site = MyAdminSite(name='Quản Lý Chung Cư')
 
 admin_site.register(Phong,AdminPhong)
@@ -306,5 +446,9 @@ admin_site.register(NguoiDung,AdminNguoiDung)
 admin_site.register(PhiCacDichVu,AdminPhiCacDichVu)
 admin_site.register(ThongTinChuyenTien,AdminThongTinChuyenTien)
 admin_site.register(TheGiuXeNguoiThan,TheGiuXeAdmin)
+admin_site.register(TuDoDienTu,TuDoDienTuAdmin)
+admin_site.register(PhanAnh,PhanAnhAdmin)
+admin_site.register(KhaoSat,KhaoSatAdmin)
+admin_site.register(CauHoi,CauHoiAdmin)
 
 
