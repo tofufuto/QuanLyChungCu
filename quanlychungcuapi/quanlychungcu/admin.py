@@ -298,6 +298,8 @@ class TheGiuXeAdmin(admin.ModelAdmin):
     list_display = ['so_xe','nguoi_dung','ten_nguoi_than']
     readonly_fields = ['so_xe','nguoi_dung','ten_nguoi_than','created_date','update_date']
 
+
+
 admin_site = MyAdminSite(name='Quản Lý Chung Cư')
 
 admin_site.register(Phong,AdminPhong)
@@ -306,5 +308,8 @@ admin_site.register(NguoiDung,AdminNguoiDung)
 admin_site.register(PhiCacDichVu,AdminPhiCacDichVu)
 admin_site.register(ThongTinChuyenTien,AdminThongTinChuyenTien)
 admin_site.register(TheGiuXeNguoiThan,TheGiuXeAdmin)
+
+
+
 
 
