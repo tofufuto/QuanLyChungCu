@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'quanlychungcu.apps.QuanlychungcuConfig',
     'rest_framework',
     'oauth2_provider',
+    'ckeditor',
 ]
 
 MIDDLEWARE = [
@@ -165,6 +166,13 @@ CSRF_TRUSTED_ORIGINS = [
 
 ALLOWED_HOSTS = ['.loca.lt', '127.0.0.1', 'localhost','quanlychungcuhuydung.loca.lt']
 
-CLIENT_ID = 'rgOr5W2LqZuNxPVTLrZ30Zse6fihCzkcBSQcSXyP'
-
-CLIENT_SECRET = 'Ap0dDnmwliOnhtv0zyaEx196QnGw5oes7ezqXMlcwyVFp8X8h9XCUeYZDzMwsqlxEpeLc7RwhuA0Z2yaPC3qRKUYLKgGtTAZSPB99QsSEojXFqdvdWWpIOsFWJdwzTja'
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'full',  # Hoặc 'basic', 'custom'
+        'height': 300,
+        'width': '100%',
+        'extraPlugins': ','.join([
+            'codesnippet',  # Hỗ trợ chèn code
+        ]),
+    }
+}

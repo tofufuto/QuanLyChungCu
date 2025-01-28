@@ -12,7 +12,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
 from quanlychungcu import serializers, VNP_HASHSECRET, PhieuStatus
-from quanlychungcu.models import PhieuDongTien, NguoiDung, TheGiuXeNguoiThan, ThongTinChuyenTien
+from quanlychungcu.models import PhieuDongTien, NguoiDung, TheGiuXeNguoiThan, ThongTinChuyenTien, KhaoSat, TraLoi
 from quanlychungcu.serializers import PhieuDongTienChiTietSerializer, PhieuDongTienSerializer
 from quanlychungcu.vnpay import vnpay
 
@@ -157,3 +157,21 @@ class ThongTinChuyenTienViewSet(viewsets.ViewSet,generics.ListAPIView):
     serializer_class = serializers.ThongTinCHuyenTienSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+class KhaoSatPagination(PageNumberPagination):
+    page_size = 5  # Số lượng bản ghi trên mỗi trang
+    page_size_query_param = 'page_size'  # Cho phép client tùy chỉnh số lượng bản ghi mỗi trang
+    max_page_size = 5  # Giới hạn tối đa số bản ghi mỗi trang
+
+class KhaoSatViewSet(viewsets.ViewSet,generics.ListAPIView,generics.RetrieveAPIView):
+    queryset = KhaoSat.objects.filter(active=True).all()
+    serializer_class = serializers.KhaoSatSerializer
+    permission_classes =[permissions.IsAuthenticated]
+    pagination_class = KhaoSatPagination
+
+class TraLoiVewSet(viewsets.ViewSet,generics.CreateAPIView):
+    queryset = TraLoi.objects.filter(active=True).all()
+    serializer_class = serializers.TraLoiSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(nguoi_dung=self.request.user)

@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 from quanlychungcu import VNP_RETURN_URL, VNP_TMNCODE, VNP_URL, VNP_HASHSECRET
 from quanlychungcu.models import PhieuDongTien, NguoiDung, TheGiuXeNguoiThan, ThongTinChuyenTien, ChiTietPhieuDongTien, \
-    Phong
+    Phong, ChiTietKhaoSat, KhaoSat, TraLoi
 
 
 class ChiTietPhieuDongTienSerializer(serializers.ModelSerializer):
@@ -92,4 +92,40 @@ class ThongTinCHuyenTienSerializer(serializers.ModelSerializer):
     class Meta:
         model = ThongTinChuyenTien
         fields = ['id','ten','ngan_hang','so_tai_khoang' , 'created_date']
+
+class ChiTietKhaoSatSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChiTietKhaoSat
+        fields = ['id', 'noi_dung']
+
+class KhaoSatSerializer(serializers.ModelSerializer):
+    chi_tiet_khao_sat = serializers.SerializerMethodField()
+    da_tra_loi = serializers.SerializerMethodField()  # Kiểm tra xem khảo sát đã có câu trả lời chưa
+
+    class Meta:
+        model = KhaoSat
+        fields = ['id', 'ten_khao_sat', 'ngay_han', 'chi_tiet_khao_sat', 'da_tra_loi']
+
+    def get_chi_tiet_khao_sat(self, obj):
+        request = self.context.get('request', None)
+        if request and request.parser_context['view'].action == 'retrieve':
+            return ChiTietKhaoSatSerializer(obj.chi_tiet_khao_sat.all(), many=True).data
+        return None  # Không trả về chi tiết khi gọi danh sách
+
+    def get_da_tra_loi(self, obj):
+        """
+        Kiểm tra xem có câu trả lời nào thuộc khảo sát này không
+        """
+        return TraLoi.objects.filter(chi_tiet_khao_sat__khao_sat=obj).exists()
+
+class TraLoiSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TraLoi
+        fields = ['id', 'chi_tiet_khao_sat', 'tra_loi']
+
+    def create(self, validated_data):
+        # Lấy thông tin người dùng từ request
+        user = self.context['request'].user
+        validated_data['nguoi_dung'] = user
+        return super().create(validated_data)
 

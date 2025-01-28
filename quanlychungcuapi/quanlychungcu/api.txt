@@ -1,3 +1,7 @@
+DONG_Y = 'Đồng ý'
+BINH_THUONG = 'Bình thường'
+KHONG_DONG_Y = 'Không đồng ý'
+
 https://quanlychungcuhuydung.loca.lt
 
 npm install -g localtunnel cài localtunnel

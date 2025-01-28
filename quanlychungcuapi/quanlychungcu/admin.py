@@ -1,20 +1,23 @@
-from datetime import datetime
+from datetime import datetime, timedelta, date
 from itertools import count
 from venv import create
 
 from PIL.ImageChops import screen
+from ckeditor.widgets import CKEditorWidget
 from django import forms
 from django.contrib import admin
 from django.db.models import Sum
 from django.db.models.functions import TruncMonth
+from django.forms import DateInput
+from django.http import JsonResponse
 from django.template.response import TemplateResponse
 from django.urls import path
-from django.utils.html import format_html
+from django.utils.html import format_html, strip_tags
 from django.utils import timezone
 from urllib3 import request
 
 from quanlychungcu.models import Phong, NguoiDung, PhieuDongTien, ChiTietPhieuDongTien, KhaoSat, ChiTietKhaoSat, \
-    LuaChon, TuDoDienTu, PhanAnh, TheGiuXeNguoiThan, BaseModel, PhiCacDichVu, ThongTinChuyenTien
+    TuDoDienTu, PhanAnh, TheGiuXeNguoiThan, BaseModel, PhiCacDichVu, ThongTinChuyenTien, TraLoi
 
 
 class MyAdminSite(admin.AdminSite):
@@ -23,7 +26,7 @@ class MyAdminSite(admin.AdminSite):
     index_title = "Trang quản trị hệ thống"
 
     def get_urls(self):
-        return [path('quanlychungcu-stats/',self.stats)] + super().get_urls()
+        return [path('quanlychungcu-stats/', self.stats)] + super().get_urls()
 
     def stats(self,request):
         # Tổng số phòng
@@ -97,17 +100,22 @@ class MyAdminSite(admin.AdminSite):
             'dt_10' : dt_10,
             'dt_11': dt_11,
             'dt_12' : dt_12,
-            'tong_dt' : tong_dt,
+            'tong_dt' : "{:,}".format(tong_dt),
         })
 
-    def get_app_list(self, request):
+
+
+
+
+    def get_app_list(self, request, *args, **kwargs):
         # Add custom link to admin index page
-        app_list = super().get_app_list(request)
+        app_list = super().get_app_list(request, *args, **kwargs)
         # Tạo danh mục (sections)
         categories = {
             'Thu Phí': [],
             'Quản Lý Phòng': [],
             'Tài Khoản': [],
+            'Khảo sát' : [],
             'Khác': [],
         }
 
@@ -123,6 +131,8 @@ class MyAdminSite(admin.AdminSite):
                     categories['Quản Lý Phòng'].append(model)
                 elif model_name in ['NguoiDung']:
                     categories['Tài Khoản'].append(model)
+                elif model_name in ['KhaoSat']:
+                    categories['Khảo sát'].append(model)
                 else:
                     categories['Khác'].append(model)
 
@@ -172,7 +182,10 @@ def tao_phieu_dong_tien(modeladmin, request, queryset):
             chi_tiet_phieu = ChiTietPhieuDongTien.objects.create(phieu=phieu_dong_tien,ten_dich_vu=dv.ten_dich_vu,noi_dung=dv.noi_dung,phi_dong=dv.phi_dong)
 
     modeladmin.message_user(request, "Đã tạo phiếu")
-    tao_phieu_dong_tien.short_description = "Tạo các phiếu đóng tiền cho người dùng được chọn(trừ admin)"
+
+tao_phieu_dong_tien.short_description = "Tạo các phiếu đóng tiền cho người dùng được chọn(trừ admin)"
+
+
 
 class AdminNguoiDung(admin.ModelAdmin):
     form = NguoiDungForm
@@ -298,7 +311,58 @@ class TheGiuXeAdmin(admin.ModelAdmin):
     list_display = ['so_xe','nguoi_dung','ten_nguoi_than']
     readonly_fields = ['so_xe','nguoi_dung','ten_nguoi_than','created_date','update_date']
 
+class ChiTietKhaoSatInline(admin.TabularInline):  # Hoặc admin.StackedInline
+    model = ChiTietKhaoSat
+    extra = 1
+    fields = ('noi_dung', 'so_dong_y', 'so_binh_thuong', 'so_khong_dong_y')  # Thêm các trường thống kê
+    readonly_fields = ('so_dong_y', 'so_binh_thuong', 'so_khong_dong_y')  # Chỉ hiển thị, không chỉnh sửa
+    fk_name = 'khao_sat'
 
+    def so_dong_y(self, obj):
+        return obj.tra_loi.filter(tra_loi='Đồng ý').count()
+    so_dong_y.short_description = "Số Người Đồng ý"
+
+    def so_binh_thuong(self, obj):
+        return obj.tra_loi.filter(tra_loi='Bình thường').count()
+    so_binh_thuong.short_description = "Số Người Bình thường"
+
+    def so_khong_dong_y(self, obj):
+        return obj.tra_loi.filter(tra_loi='Không đồng ý').count()
+    so_khong_dong_y.short_description = "Số Người Không đồng ý"
+
+
+class KhaoSatForm(forms.ModelForm):
+    class Meta:
+        model = KhaoSat
+        fields = '__all__'
+
+    # Thiết lập widget cho trường ngay_han
+    ngay_han = forms.DateField(
+        widget=DateInput(attrs={'type': 'date', 'min': str(date.today())}),
+        required=True
+    )
+
+
+class KhaoSatAdmin(admin.ModelAdmin):
+    list_display = ('ten_khao_sat', 'ngay_han')  # Hiển thị thông tin khảo sát
+    search_fields = ('ten_khao_sat',)  # Tìm kiếm theo tên khảo sát
+    inlines = [ChiTietKhaoSatInline]  # Thêm inline cho ChiTietKhaoSat
+    readonly_fields = ['created_date']
+    fields = ['ten_khao_sat','ngay_han','created_date']
+
+    form = KhaoSatForm
+
+    def has_change_permission(self, request, obj=None):
+        return False  # Điều này sẽ tắt quyền chỉnh sửa cho đối tượng này
+
+    def has_delete_permission(self, request, obj=None):
+        return False  # Điều này sẽ tắt quyền chỉnh sửa cho đối tượng này
+
+
+
+
+class TraLoiAdmin(admin.ModelAdmin):
+    pass
 
 admin_site = MyAdminSite(name='Quản Lý Chung Cư')
 
@@ -308,6 +372,11 @@ admin_site.register(NguoiDung,AdminNguoiDung)
 admin_site.register(PhiCacDichVu,AdminPhiCacDichVu)
 admin_site.register(ThongTinChuyenTien,AdminThongTinChuyenTien)
 admin_site.register(TheGiuXeNguoiThan,TheGiuXeAdmin)
+
+admin_site.register(KhaoSat,KhaoSatAdmin)
+admin_site.register(TraLoi,TraLoiAdmin)
+
+
 
 
 
