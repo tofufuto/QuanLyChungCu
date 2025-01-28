@@ -7,9 +7,14 @@ class PhieuStatus(Enum):
     APPROVED = 'APPROVED'
     REJECTED = 'REJECTED'
 
-class PhanAnhStatus(Enum):
-    WAITING = 'WAITING'
-    VIEWED = 'VIEWED'
+class PhanAnhStatus:
+    WAITING = 'waiting'
+    PROCESSED = 'processed'
+
+    CHOICES = [
+        (WAITING, 'Đang chờ xử lý'),
+        (PROCESSED, 'Đã xử lý'),
+    ]
 
 VNP_TMNCODE = 'BGJVFP3Z'
 VNP_HASHSECRET = '9JVDXL67YUMV3I01HKS36KAPKQCL7TN5'

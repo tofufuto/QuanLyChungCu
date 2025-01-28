@@ -16,8 +16,9 @@ from django.utils.html import format_html, strip_tags
 from django.utils import timezone
 from urllib3 import request
 
+from quanlychungcu import PhanAnhStatus
 from quanlychungcu.models import Phong, NguoiDung, PhieuDongTien, ChiTietPhieuDongTien, KhaoSat, ChiTietKhaoSat, \
-    TuDoDienTu, PhanAnh, TheGiuXeNguoiThan, BaseModel, PhiCacDichVu, ThongTinChuyenTien, TraLoi
+    TuDoDienTu, PhanAnh, TheGiuXeNguoiThan, BaseModel, PhiCacDichVu, ThongTinChuyenTien, TraLoi, HinhAnhPhanAnh
 
 
 class MyAdminSite(admin.AdminSite):
@@ -116,6 +117,8 @@ class MyAdminSite(admin.AdminSite):
             'Quản Lý Phòng': [],
             'Tài Khoản': [],
             'Khảo sát' : [],
+            'Tủ đồ điện tử': [],
+            'Phản ánh': [],
             'Khác': [],
         }
 
@@ -133,6 +136,10 @@ class MyAdminSite(admin.AdminSite):
                     categories['Tài Khoản'].append(model)
                 elif model_name in ['KhaoSat']:
                     categories['Khảo sát'].append(model)
+                elif model_name in ['TuDoDienTu']:
+                    categories['Tủ đồ điện tử'].append(model)
+                elif model_name in ['PhanAnh']:
+                    categories['Phản ánh'].append(model)
                 else:
                     categories['Khác'].append(model)
 
@@ -358,7 +365,64 @@ class KhaoSatAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False  # Điều này sẽ tắt quyền chỉnh sửa cho đối tượng này
 
+class TuDoDienTuAdmin(admin.ModelAdmin):
+    list_display = ('ten_do', 'trang_thai', 'nguoi_dung','ngay_nhan_hang')
+    list_filter = ('trang_thai',)
+    search_fields = ('tieu_de', 'noi_dung', 'nguoi_dung')
 
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+
+        # Nếu trạng thái được đặt thành "Có hàng", bật thông báo cho người dùng
+        if obj.trang_thai == 'stocked':
+            NguoiDung.objects.filter(id=obj.nguoi_dung.id).update(thong_bao=True)
+        elif obj.trang_thai == 'empty':
+            NguoiDung.objects.filter(id=obj.nguoi_dung.id).update(thong_bao=False)
+
+    def mark_as_processed(self, request, queryset):
+        updated = queryset.update(trang_thai='stocked')
+        self.message_user(request, f"{updated} Tủ đồ đã được đánh dấu là 'Có hàng '.")
+
+    mark_as_processed.short_description = "Đánh dấu là có đơn hàng"
+    actions = ['mark_as_processed']
+
+
+
+class PhanAnhAdmin(admin.ModelAdmin):
+    list_display = ('tieu_de', 'nguoi_dung', 'status',)
+    list_filter = ('status', 'nguoi_dung')
+    search_fields = ('tieu_de', 'noi_dung')
+
+    def get_queryset(self, request):
+        """ Chỉ hiển thị phản ánh do người dùng (không phải admin) tạo. """
+        queryset = super().get_queryset(request)
+        return queryset.filter(nguoi_dung__is_staff=False)
+
+    def has_add_permission(self, request):
+        """ Ngăn admin tạo mới phản ánh """
+        return False
+
+    def mark_as_processed(self, request, queryset):
+        queryset.update(status=PhanAnhStatus.PROCESSED)
+
+    mark_as_processed.short_description = "Đánh dấu là đã xử lý"
+
+    def mark_as_waiting(self, request, queryset):
+        queryset.update(status=PhanAnhStatus.WAITING)
+
+        # Không cho phép thêm phản ánh mới
+    def has_add_permission(self, request):
+            return False
+
+    mark_as_waiting.short_description = "Đánh dấu là đang chờ xử lý"
+    actions = ['mark_as_processed', 'mark_as_waiting']
+
+
+class HinhAnhPhanAnhAdmin(admin.ModelAdmin):
+    list_display = ('id', 'phan_anh', 'image', )
+    list_filter = ('id',)
+    readonly_fields = ('phan_anh', 'image', )
+   # inlines = [HinhAnhPhanAnhInline]
 
 
 class TraLoiAdmin(admin.ModelAdmin):
@@ -372,7 +436,9 @@ admin_site.register(NguoiDung,AdminNguoiDung)
 admin_site.register(PhiCacDichVu,AdminPhiCacDichVu)
 admin_site.register(ThongTinChuyenTien,AdminThongTinChuyenTien)
 admin_site.register(TheGiuXeNguoiThan,TheGiuXeAdmin)
-
+admin_site.register(TuDoDienTu,TuDoDienTuAdmin)
+admin_site.register(PhanAnh,PhanAnhAdmin)
+admin_site.register(HinhAnhPhanAnh,HinhAnhPhanAnhAdmin)
 admin_site.register(KhaoSat,KhaoSatAdmin)
 # admin_site.register(TraLoi,TraLoiAdmin)
 

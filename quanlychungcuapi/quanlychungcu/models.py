@@ -35,6 +35,7 @@ class NguoiDung(AbstractUser):
      sdt = models.CharField(max_length=10)
      cccd = models.CharField(max_length=12)
      birthdate = models.DateField(default=now)
+     thong_bao = models.BooleanField(default=False, verbose_name="Thông báo đơn hàng")
 
 
      class Meta:
@@ -81,15 +82,21 @@ class PhanAnh(BaseModel):
     nguoi_dung = models.ForeignKey(NguoiDung, on_delete=models.CASCADE, null=False, related_name='phan_anhs')
     noi_dung = models.TextField(null=False)
     tieu_de = models.TextField(null=False)
-    status = models.CharField(max_length=255,null=False,default=PhanAnhStatus.WAITING.value)
+    status = models.CharField(max_length=255, null=False, choices=PhanAnhStatus.CHOICES, default=PhanAnhStatus.WAITING)
+
 
 class HinhAnhPhanAnh (BaseModel):
-    phan_anh = models.ForeignKey(NguoiDung, on_delete=models.CASCADE, null=False, related_name='hinh_anhs')
+    phan_anh = models.ForeignKey(PhanAnh, on_delete=models.CASCADE, null=False, related_name='hinh_anh_phan_anhs')
     image = CloudinaryField('image',blank=True,null=True)
 
 class TuDoDienTu(BaseModel):
     ten_do = models.CharField(max_length=255)
     mo_ta = models.CharField(max_length=255)
+    ngay_nhan_hang = models.DateTimeField(null=True, blank=True)
+    trang_thai = models.CharField(max_length=50, choices=[
+        ('empty', 'Trống'),
+        ('stocked', 'Có hàng')
+    ], default='empty', verbose_name="Trạng thái")
     nguoi_dung = models.ForeignKey(NguoiDung,on_delete=models.PROTECT,null=False,related_name='tu_dos')
 
 
@@ -112,9 +119,6 @@ class TraLoi(BaseModel):
         max_length=20,
         null=False
     )
-
-
-
 
 class PhiCacDichVu(BaseModel):
     ten_dich_vu = models.CharField(max_length=255,null=False,default='KHÁC')

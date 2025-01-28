@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 from quanlychungcu import VNP_RETURN_URL, VNP_TMNCODE, VNP_URL, VNP_HASHSECRET
 from quanlychungcu.models import PhieuDongTien, NguoiDung, TheGiuXeNguoiThan, ThongTinChuyenTien, ChiTietPhieuDongTien, \
-    Phong, ChiTietKhaoSat, KhaoSat, TraLoi
+    Phong, ChiTietKhaoSat, KhaoSat, TraLoi, TuDoDienTu, PhanAnh
 
 
 class ChiTietPhieuDongTienSerializer(serializers.ModelSerializer):
@@ -129,3 +129,14 @@ class TraLoiSerializer(serializers.ModelSerializer):
         validated_data['nguoi_dung'] = user
         return super().create(validated_data)
 
+class TuDoDienTuSerializer(serializers.ModelSerializer):
+    created_date = serializers.DateTimeField(format="%d-%m-%Y %H:%M:%S")
+    class Meta:
+        model = TuDoDienTu
+        fields = '__all__'
+
+class PhanAnhSerializer(serializers.ModelSerializer):
+    created_date = serializers.DateTimeField(format="%d-%m-%Y %H:%M:%S")
+    class Meta:
+        model = PhanAnh
+        fields = '__all__'
