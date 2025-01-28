@@ -61,5 +61,7 @@ export default StyleSheet.create({
     backgroundColor: '#6eff97', 
     },
 
-
+    profile_card_lightyellow: {
+        backgroundColor: '#fff36e', 
+        },
 })

@@ -6,12 +6,13 @@ import APIs, { endpoints } from "../../configs/APIs";
 import { config } from "../../configs/config";
 import style from "../../styles/style";
 import { ScrollView } from "react-native-gesture-handler";
+import { useNavigation } from "@react-navigation/native";
 
 const Profile = () => {
   const [userData, setUserData] = useState(null);  // Lưu dữ liệu người dùng
   const [loading, setLoading] = useState(true);  // Trạng thái tải dữ liệu
   const [error, setError] = useState(null);  // Trạng thái lỗi
-
+   const navigation = useNavigation();  
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -58,6 +59,9 @@ const Profile = () => {
       </View>
     );
   }
+  const change_profile = () =>{
+    navigation.navigate("Profile_Change",{id : userData.results[0].id});
+  };
 
   return (
     <ScrollView>
@@ -77,6 +81,9 @@ const Profile = () => {
     </Card> 
     <Card style={[style.profile_card,style.profile_card_lightgreen]}>
     <Text style={style.profile_text}>Phòng: {userData.results[0].phong.so_phong}</Text> 
+    </Card> 
+    <Card style={[style.profile_card,style.profile_card_lightyellow]} onPress={() =>change_profile()}>
+    <Text style={style.profile_text}>Đổi mật khẩu</Text> 
     </Card> 
   </View>
   </ScrollView>

@@ -37,7 +37,7 @@ const Login = () => {
           // Alert.alert("Login Success", "You are now logged in!");
           
           // Chuyển đến màn hình Profile sau khi đăng nhập thành công
-          navigation.navigate("Profile");
+          navigation.navigate("Home");
         } else {
           Alert.alert("Đăng nhập thất bại", "Sai mật khẩu hoặc username");
         }

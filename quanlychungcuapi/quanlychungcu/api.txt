@@ -67,3 +67,14 @@ METHOD : DELETE
 xem các thông tin chuyển tiền : http://127.0.0.1:8000/thongtinchuyentiens
 METHOD : GET
 Header : Authorization : Bearer <Access token>
+
+lấy khảo sát
+Header : Authorization : Bearer <Access token>
+GET
+http://127.0.0.1:8000/khaosats
+http://127.0.0.1:8000/khaosats/<id>
+trả lời
+POST
+http://127.0.0.1:8000/traloi/
+chi_tiet_khao_sat : <id>
+tra_loi :
