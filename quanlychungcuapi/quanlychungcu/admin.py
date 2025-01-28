@@ -374,7 +374,7 @@ admin_site.register(ThongTinChuyenTien,AdminThongTinChuyenTien)
 admin_site.register(TheGiuXeNguoiThan,TheGiuXeAdmin)
 
 admin_site.register(KhaoSat,KhaoSatAdmin)
-admin_site.register(TraLoi,TraLoiAdmin)
+# admin_site.register(TraLoi,TraLoiAdmin)
 
 
 
