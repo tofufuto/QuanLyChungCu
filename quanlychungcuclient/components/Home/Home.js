@@ -10,6 +10,10 @@ const Home = () => {
   const handlePress = (item) => {
     if (item == "Profile")
         navigation.navigate("Profile");
+    if (item == "ChuyenTienInfo")
+        navigation.navigate("ChuyenTienInfo");
+    if (item == "ParkingCardForR")
+        navigation.navigate("ParkingCardForR");
   };
 
   return (
@@ -25,6 +29,38 @@ const Home = () => {
             <View style={styles.textContainer}>
               <Title>Profile</Title>
               <Paragraph>Xem thông tin cá nhân</Paragraph>
+            </View>
+          </View>
+        </Card.Content>
+      </Card>
+    </View>
+    <View style={styles.content}>
+      <Card style={styles.card} onPress={() => handlePress("ParkingCardForR")}>
+        <Card.Content>
+          <View style={styles.profileContainer}>
+            <Avatar.Image 
+              size={50} 
+              source={require("../../assets/card.jpg")} 
+            />
+            <View style={styles.textContainer}>
+              <Title>Thẻ giữ xe cho người thân</Title>
+              <Paragraph>Xem các thẻ giữ xe hoặc đăng ký thẻ cho người thân</Paragraph>
+            </View>
+          </View>
+        </Card.Content>
+      </Card>
+    </View>
+    <View style={styles.content}>
+      <Card style={styles.card} onPress={() => handlePress("ChuyenTienInfo")}>
+        <Card.Content>
+          <View style={styles.profileContainer}>
+            <Avatar.Image 
+              size={50} 
+              source={require("../../assets/question_mark.png")} 
+            />
+            <View style={styles.textContainer}>
+              <Title>Thông tin chuyển tiền</Title>
+              <Paragraph>Xem thông tin tài khoảng để chuyển các khoảng phí của chung cư</Paragraph>
             </View>
           </View>
         </Card.Content>

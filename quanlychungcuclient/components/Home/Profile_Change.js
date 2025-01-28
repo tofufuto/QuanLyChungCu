@@ -14,7 +14,6 @@ const Profile_Change = ({ navigation, route }) => {
   
 
   useEffect(() => {
-    
     const requestPermission = async () => {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
@@ -49,7 +48,6 @@ const Profile_Change = ({ navigation, route }) => {
       const token = await AsyncStorage.getItem('LOGIN_TOKEN');
       const id = route.params.id; 
 
-     
       const formData = new FormData();
       formData.append('password', password);
       if (avatarUri) {
@@ -74,9 +72,11 @@ const Profile_Change = ({ navigation, route }) => {
       );
 
       if (response.status === 200) {
-        Alert.alert('Cập nhật thành công');
-        navigation.navigate("Login");
+        Alert.alert('Cập nhật thành công', 'Bạn đã cập nhật thông tin thành công');
+        
+        // Remove the login token and navigate to login screen
         await AsyncStorage.removeItem('LOGIN_TOKEN');
+        navigation.reset({ index: 0, routes: [{ name: 'Login' }] }); // Reset stack and navigate to Login
       } else {
         Alert.alert('Cập nhật thất bại');
       }
