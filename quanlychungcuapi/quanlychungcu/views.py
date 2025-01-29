@@ -208,9 +208,21 @@ class TraLoiViewSet(viewsets.ViewSet):
 
 
 class TuDoDienTuViewSet(viewsets.ViewSet, generics.ListAPIView, generics.CreateAPIView):
-    queryset = TuDoDienTu.objects.filter(active=True).all()
     serializer_class = serializers.TuDoDienTuSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        """
+        Lọc danh sách theo `ten_do` nếu có từ khóa tìm kiếm.
+        """
+        queryset = TuDoDienTu.objects.filter(active=True).order_by('-id')
+
+        # Lấy từ khóa tìm kiếm từ request
+        keyword = self.request.query_params.get('keyword', None)
+        if keyword:
+            queryset = queryset.filter(ten_do__icontains=keyword)  # Lọc theo từ khóa không phân biệt hoa thường
+
+        return queryset
 
     def create(self, request, *args, **kwargs):
         # Kiểm tra request.user
@@ -233,6 +245,8 @@ class TuDoDienTuViewSet(viewsets.ViewSet, generics.ListAPIView, generics.CreateA
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 class PhanAnhViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]

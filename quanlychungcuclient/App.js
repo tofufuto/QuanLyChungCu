@@ -11,7 +11,7 @@ import ParkingCardForR from './components/TheGiuXeChoNgThan/ParkingCardForR';
 import TaoTheGiuXe from './components/TheGiuXeChoNgThan/TaoTheGiuXe';
 import PhieuDongTien from './components/PhieuDongTien/PhieuDongTien';
 import ChiTietPhieuDongTien from './components/PhieuDongTien/ChiTietPhieuDongTien';
-
+import TuDoDienTu from './components/TuDoDienTu/TuDoDienTu';
 const Stack = createStackNavigator();
 
 
@@ -28,6 +28,7 @@ export default function App() {
       <Stack.Screen name="TaoTheGiuXe" component={TaoTheGiuXe} />
       <Stack.Screen name="PhieuDongTien" component={PhieuDongTien} />
       <Stack.Screen name="ChiTietPhieuDongTien" component={ChiTietPhieuDongTien} />
+      <Stack.Screen name="TuDoDienTu" component={TuDoDienTu} />
     </Stack.Navigator>
   </NavigationContainer>
 

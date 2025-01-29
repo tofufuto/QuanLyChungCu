@@ -8,6 +8,7 @@ export const endpoints={
     'thongtinchuyentiens':'/thongtinchuyentiens',
     'thegiuxes':'/thegiuxes',
     'phieudongtiens':'/phieudongtiens',
+    'tudodientus':'/tudodientus',
 }
 
 export default axios.create({
