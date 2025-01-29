@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, Alert, Image, TouchableOpacity, Linking } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, Alert, Image, TouchableOpacity, Linking, ScrollView } from 'react-native';
 import { Card, Title, Paragraph, Button } from 'react-native-paper';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from 'expo-image-picker';
 import APIs, { endpoints } from '../../configs/APIs';
+import { config } from '../../configs/config';
 
 const ChiTietPhieuDongTien = ({ route, navigation }) => {
-  const { id } = route.params; // Lấy id từ navigation
+  const { id } = route.params;
   const [phieu, setPhieu] = useState(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -110,7 +111,7 @@ const ChiTietPhieuDongTien = ({ route, navigation }) => {
   const statusInfo = getStatusLabel(phieu.status);
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <Card style={[styles.card, { borderLeftColor: statusInfo.color, borderLeftWidth: 5 }]}>
         <Card.Content>
           <Title>💰 Tổng tiền: {formatCurrency(phieu.tong_tien)} VNĐ</Title>
@@ -131,7 +132,7 @@ const ChiTietPhieuDongTien = ({ route, navigation }) => {
       ))}
 
       {phieu.screenshot_xac_nhan ? (
-        <Image source={{ uri: phieu.screenshot_xac_nhan }} style={styles.image} />
+        <Image source={{ uri: `${config.CLOUDINARY_BASE_URL}${phieu.screenshot_xac_nhan}` }} style={styles.image} />
       ) : null}
 
       {(phieu.status === 'WAITING' || phieu.status === 'REJECTED') && (
@@ -160,7 +161,7 @@ const ChiTietPhieuDongTien = ({ route, navigation }) => {
           )}
         </>
       )}
-    </View>
+    </ScrollView>
   );
 };
 
@@ -211,6 +212,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   button: {
+    backgroundColor :'#008cbf',
     marginVertical: 5,
   },
 });
