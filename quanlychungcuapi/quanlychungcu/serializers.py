@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 from quanlychungcu import VNP_RETURN_URL, VNP_TMNCODE, VNP_URL, VNP_HASHSECRET
 from quanlychungcu.models import PhieuDongTien, NguoiDung, TheGiuXeNguoiThan, ThongTinChuyenTien, ChiTietPhieuDongTien, \
-    Phong, ChiTietKhaoSat, KhaoSat, TraLoi, TuDoDienTu, PhanAnh
+    Phong, ChiTietKhaoSat, KhaoSat, TraLoi, TuDoDienTu, PhanAnh, HinhAnhPhanAnh
 
 
 class ChiTietPhieuDongTienSerializer(serializers.ModelSerializer):
@@ -130,13 +130,57 @@ class TraLoiSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 class TuDoDienTuSerializer(serializers.ModelSerializer):
-    created_date = serializers.DateTimeField(format="%d-%m-%Y %H:%M:%S")
     class Meta:
         model = TuDoDienTu
-        fields = '__all__'
+        fields = ['id', 'ten_do', 'mo_ta', 'ngay_nhan_hang', 'nguoi_dung']
+
+
+class HinhAnhPhanAnhSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HinhAnhPhanAnh
+        fields = ['image']
 
 class PhanAnhSerializer(serializers.ModelSerializer):
-    created_date = serializers.DateTimeField(format="%d-%m-%Y %H:%M:%S")
+    """
+    Dùng để GET phản ánh, chỉ lấy ảnh khi gọi retrieve.
+    """
+    hinh_anh_phan_anhs = serializers.SerializerMethodField()
+
     class Meta:
         model = PhanAnh
-        fields = '__all__'
+        fields = ['id', 'tieu_de', 'noi_dung', 'status', 'nguoi_dung', 'hinh_anh_phan_anhs']
+        read_only_fields = ['nguoi_dung']
+
+    def get_hinh_anh_phan_anhs(self, obj):
+        """
+        Chỉ lấy danh sách ảnh khi gọi retrieve API.
+        """
+        view = self.context.get('view')
+        if view and view.action == 'retrieve':
+            return HinhAnhPhanAnhSerializer(obj.hinh_anh_phan_anhs.all(), many=True).data
+        return []  # Trả về danh sách rỗng nếu gọi list API
+
+class PhanAnhCreateSerializer(serializers.ModelSerializer):
+    """
+    Dùng để tạo mới phản ánh, hỗ trợ nhiều ảnh dưới dạng JSON list.
+    """
+    hinh_anh_phan_anhs = serializers.ListField(
+        child=serializers.ImageField(), required=False
+    )
+
+    class Meta:
+        model = PhanAnh
+        fields = ['tieu_de', 'noi_dung', 'hinh_anh_phan_anhs']
+
+    def create(self, validated_data):
+        """
+        Tạo phản ánh và lưu nhiều ảnh.
+        """
+        hinh_anh_data = validated_data.pop('hinh_anh_phan_anhs', [])  # Lấy danh sách ảnh
+        phan_anh = PhanAnh.objects.create(**validated_data)
+
+        # Lưu từng ảnh vào HinhAnhPhanAnh
+        for image in hinh_anh_data:
+            HinhAnhPhanAnh.objects.create(phan_anh=phan_anh, image=image)
+
+        return phan_anh

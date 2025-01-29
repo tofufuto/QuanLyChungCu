@@ -92,7 +92,7 @@ class HinhAnhPhanAnh (BaseModel):
 class TuDoDienTu(BaseModel):
     ten_do = models.CharField(max_length=255)
     mo_ta = models.CharField(max_length=255)
-    ngay_nhan_hang = models.DateTimeField(null=True, blank=True)
+    ngay_nhan_hang = models.DateField(null=True, blank=True)
     trang_thai = models.CharField(max_length=50, choices=[
         ('empty', 'Trống'),
         ('stocked', 'Có hàng')
