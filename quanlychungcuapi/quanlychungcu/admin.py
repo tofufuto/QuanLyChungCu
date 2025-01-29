@@ -388,41 +388,27 @@ class TuDoDienTuAdmin(admin.ModelAdmin):
 
 
 
+class HinhAnhPhanAnhInline(admin.TabularInline):
+    model = HinhAnhPhanAnh
+    extra = 0
+    readonly_fields = ('preview',)
+
+    def preview(self, obj):
+        if obj.image:
+            return format_html('<img src="{}" width="100" height="100" style="object-fit: cover;"/>', obj.image.url)
+        return "-"
+    preview.short_description = "Xem trước ảnh"
+
+
 class PhanAnhAdmin(admin.ModelAdmin):
-    list_display = ('tieu_de', 'nguoi_dung', 'status',)
-    list_filter = ('status', 'nguoi_dung')
-    search_fields = ('tieu_de', 'noi_dung')
-
-    def get_queryset(self, request):
-        """ Chỉ hiển thị phản ánh do người dùng (không phải admin) tạo. """
-        queryset = super().get_queryset(request)
-        return queryset.filter(nguoi_dung__is_staff=False)
+    list_display = ("id", "nguoi_dung", "tieu_de", "status", "created_date")
+    list_filter = ("status",)
+    search_fields = ("tieu_de", "noi_dung", "nguoi_dung__username")
+    readonly_fields = ("nguoi_dung", "tieu_de", "noi_dung")
+    inlines = [HinhAnhPhanAnhInline]
 
     def has_add_permission(self, request):
-        """ Ngăn admin tạo mới phản ánh """
-        return False
-
-    def mark_as_processed(self, request, queryset):
-        queryset.update(status=PhanAnhStatus.PROCESSED)
-
-    mark_as_processed.short_description = "Đánh dấu là đã xử lý"
-
-    def mark_as_waiting(self, request, queryset):
-        queryset.update(status=PhanAnhStatus.WAITING)
-
-        # Không cho phép thêm phản ánh mới
-    def has_add_permission(self, request):
-            return False
-
-    mark_as_waiting.short_description = "Đánh dấu là đang chờ xử lý"
-    actions = ['mark_as_processed', 'mark_as_waiting']
-
-
-class HinhAnhPhanAnhAdmin(admin.ModelAdmin):
-    list_display = ('id', 'phan_anh', 'image', )
-    list_filter = ('id',)
-    readonly_fields = ('phan_anh', 'image', )
-   # inlines = [HinhAnhPhanAnhInline]
+        return False  # Không cho phép admin tạo phản ánh mới
 
 
 class TraLoiAdmin(admin.ModelAdmin):

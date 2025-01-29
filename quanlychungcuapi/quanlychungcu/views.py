@@ -15,7 +15,7 @@ from rest_framework.response import Response
 from quanlychungcu import serializers, VNP_HASHSECRET, PhieuStatus
 from quanlychungcu.models import PhieuDongTien, NguoiDung, TheGiuXeNguoiThan, ThongTinChuyenTien, KhaoSat, TraLoi, \
     TuDoDienTu, PhanAnh
-from quanlychungcu.serializers import PhieuDongTienChiTietSerializer, PhieuDongTienSerializer
+from quanlychungcu.serializers import PhieuDongTienChiTietSerializer, PhieuDongTienSerializer, PhanAnhSerializer
 from quanlychungcu.vnpay import vnpay
 
 
@@ -126,7 +126,7 @@ class NguoiDungViewSet(viewsets.ViewSet,generics.ListAPIView,generics.UpdateAPIV
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def get_permissions(self):
-        if self.action._eq__('current_user'):
+        if self.action.__eq__('current_user'):
             return [permissions.IsAuthenticated()]
 
         return [permissions.AllowAny()]
@@ -194,10 +194,22 @@ class TuDoDienTuViewSet(viewsets.ViewSet,generics.ListAPIView):
     serializer_class = serializers.TuDoDienTuSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-class PhanAnhViewSet(viewsets.ViewSet,generics.ListAPIView):
-    queryset = PhanAnh.objects.filter(active=True).all()
-    serializer_class = serializers.PhanAnhSerializer
-    permission_classes = [permissions.IsAuthenticated]
+class PhanAnhViewSet(viewsets.ModelViewSet):
+    queryset = PhanAnh.objects.all().order_by('-created_date')
+    serializer_class = PhanAnhSerializer
+
+    def get_permissions(self):
+        if self.action in ['create']:
+            return [permissions.IsAuthenticated()]  # Người dùng phải đăng nhập mới được tạo phản ánh
+        return [permissions.IsAdminUser()]  # Admin có thể xem & cập nhật phản ánh nhưng không tạo mới
+
+    def perform_create(self, serializer):
+        serializer.save(nguoi_dung=self.request.user)  # Gán người dùng hiện tại làm chủ phản ánh
+
+    def create(self, request, *args, **kwargs):
+        if request.user.is_staff:
+            return Response({"detail": "Admin không thể tạo phản ánh."}, status=403)
+        return super().create(request, *args, **kwargs)
 
 
 
