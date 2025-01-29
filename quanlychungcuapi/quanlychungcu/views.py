@@ -13,8 +13,8 @@ from rest_framework.response import Response
 
 from quanlychungcu import serializers, VNP_HASHSECRET, PhieuStatus
 from quanlychungcu.models import PhieuDongTien, NguoiDung, TheGiuXeNguoiThan, ThongTinChuyenTien, KhaoSat, TraLoi, \
-    TuDoDienTu, PhanAnh
-from quanlychungcu.serializers import PhieuDongTienChiTietSerializer, PhieuDongTienSerializer
+    TuDoDienTu, PhanAnh, ChiTietKhaoSat
+from quanlychungcu.serializers import PhieuDongTienChiTietSerializer, PhieuDongTienSerializer, TraLoiSerializer
 from quanlychungcu.vnpay import vnpay
 
 
@@ -169,13 +169,40 @@ class KhaoSatViewSet(viewsets.ViewSet,generics.ListAPIView,generics.RetrieveAPIV
     permission_classes =[permissions.IsAuthenticated]
     pagination_class = KhaoSatPagination
 
-class TraLoiVewSet(viewsets.ViewSet,generics.CreateAPIView):
-    queryset = TraLoi.objects.filter(active=True).all()
-    serializer_class = serializers.TraLoiSerializer
+class TraLoiViewSet(viewsets.ViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
-    def perform_create(self, serializer):
-        serializer.save(nguoi_dung=self.request.user)
+    def create(self, request, *args, **kwargs):
+        data = request.data  # Lấy dữ liệu từ request
+
+        if not isinstance(data, list):
+            return Response({"error": "Expected a list of answers"}, status=status.HTTP_400_BAD_REQUEST)
+
+        saved_answers = []
+        for answer_data in data:
+            chi_tiet_khao_sat_id = answer_data.get('chi_tiet_khao_sat')
+            tra_loi_text = answer_data.get('tra_loi')
+
+            if not chi_tiet_khao_sat_id or not tra_loi_text:
+                return Response({"error": "Missing 'chi_tiet_khao_sat' or 'tra_loi'"}, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                chi_tiet_khao_sat = ChiTietKhaoSat.objects.get(id=chi_tiet_khao_sat_id)
+            except ChiTietKhaoSat.DoesNotExist:
+                return Response({"error": f"Question ID {chi_tiet_khao_sat_id} does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Tạo đối tượng TraLoi
+            tra_loi_instance = TraLoi.objects.create(
+                nguoi_dung=request.user,
+                chi_tiet_khao_sat=chi_tiet_khao_sat,
+                tra_loi=tra_loi_text
+            )
+
+            # Lưu câu trả lời
+            saved_answers.append(TraLoiSerializer(tra_loi_instance).data)
+
+        return Response(saved_answers, status=status.HTTP_201_CREATED)
+
 
 class TuDoDienTuViewSet(viewsets.ViewSet,generics.ListAPIView):
     queryset = TuDoDienTu.objects.filter(active=True).all()
