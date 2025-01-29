@@ -1,7 +1,7 @@
 
 export const config = {
     CLOUDINARY_BASE_URL : "https://res.cloudinary.com/dv1nnzhrq/",
-    clientId: "rgOr5W2LqZuNxPVTLrZ30Zse6fihCzkcBSQcSXyP",
-    clientSecret: "Ap0dDnmwliOnhtv0zyaEx196QnGw5oes7ezqXMlcwyVFp8X8h9XCUeYZDzMwsqlxEpeLc7RwhuA0Z2yaPC3qRKUYLKgGtTAZSPB99QsSEojXFqdvdWWpIOsFWJdwzTja",
+    clientId: "RosUZxR64SXQxTg2Ovf6Tc1oSI8otf5QYpacdlSt",
+    clientSecret: "s2IzRfH34N9eGu5Pil09QBsBnioPIen3cjTqPZBp1geayh57Yy50PbjOLayjbZXrRAsZmr1jVoWbgcd0fBx6YXRH2sizvK0VkkJHOfOPqbZwjWEDjrCtLgF5gfrrbkr1",
     LOGIN_TOKEN :"LOGIN_TOKEN",
   };

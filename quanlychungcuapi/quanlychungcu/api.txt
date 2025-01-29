@@ -76,5 +76,16 @@ http://127.0.0.1:8000/khaosats/<id>
 trả lời
 POST
 http://127.0.0.1:8000/traloi/
+raw JSON
+Content-Type :application/json
 chi_tiet_khao_sat : <id>
-tra_loi :
+[
+    {
+        "chi_tiet_khao_sat": 1,
+        "tra_loi": "Đồng ý"
+    },
+    {
+        "chi_tiet_khao_sat": 2,
+        "tra_loi": "Không đồng ý"
+    }
+]

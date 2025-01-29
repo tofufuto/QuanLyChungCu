@@ -123,7 +123,7 @@ class KhaoSatSerializer(serializers.ModelSerializer):
 class TraLoiSerializer(serializers.ModelSerializer):
     class Meta:
         model = TraLoi
-        fields = ['id', 'chi_tiet_khao_sat', 'tra_loi']
+        fields = ['id' ,'chi_tiet_khao_sat', 'tra_loi']
 
     def create(self, validated_data):
         # Lấy thông tin người dùng từ request

@@ -7,6 +7,7 @@ export const endpoints={
     'user':'/user',
     'thongtinchuyentiens':'/thongtinchuyentiens',
     'thegiuxes':'/thegiuxes',
+    'phieudongtiens':'/phieudongtiens',
 }
 
 export default axios.create({
