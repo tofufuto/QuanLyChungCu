@@ -9,6 +9,8 @@ import Profile_Change from './components/Home/Profile_Change';
 import ChuyenTienInfo from './components/Home/ChuyenTienInfo';
 import ParkingCardForR from './components/TheGiuXeChoNgThan/ParkingCardForR';
 import TaoTheGiuXe from './components/TheGiuXeChoNgThan/TaoTheGiuXe';
+import PhieuDongTien from './components/PhieuDongTien/PhieuDongTien';
+import ChiTietPhieuDongTien from './components/PhieuDongTien/ChiTietPhieuDongTien';
 
 const Stack = createStackNavigator();
 
@@ -24,6 +26,8 @@ export default function App() {
       <Stack.Screen name="ChuyenTienInfo" component={ChuyenTienInfo} />
       <Stack.Screen name="ParkingCardForR" component={ParkingCardForR} />
       <Stack.Screen name="TaoTheGiuXe" component={TaoTheGiuXe} />
+      <Stack.Screen name="PhieuDongTien" component={PhieuDongTien} />
+      <Stack.Screen name="ChiTietPhieuDongTien" component={ChiTietPhieuDongTien} />
     </Stack.Navigator>
   </NavigationContainer>
 

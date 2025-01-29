@@ -185,6 +185,9 @@ class TraLoiViewSet(viewsets.ViewSet):
 
             if not chi_tiet_khao_sat_id or not tra_loi_text:
                 return Response({"error": "Missing 'chi_tiet_khao_sat' or 'tra_loi'"}, status=status.HTTP_400_BAD_REQUEST)
+            if tra_loi_text != 'Đồng ý' and tra_loi_text != 'Không đồng ý' and tra_loi_text != 'Bình thường':
+                return Response({"error": "Missing Invalid 'tra_loi' data"},
+                                status=status.HTTP_400_BAD_REQUEST)
 
             try:
                 chi_tiet_khao_sat = ChiTietKhaoSat.objects.get(id=chi_tiet_khao_sat_id)
