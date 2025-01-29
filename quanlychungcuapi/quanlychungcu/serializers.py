@@ -134,7 +134,7 @@ class TraLoiSerializer(serializers.ModelSerializer):
 class TuDoDienTuSerializer(serializers.ModelSerializer):
     class Meta:
         model = TuDoDienTu
-        fields = ['id', 'ten_do', 'mo_ta', 'ngay_nhan_hang', 'nguoi_dung']
+        fields = ['id', 'ten_do', 'mo_ta', 'ngay_nhan_hang', 'nguoi_dung','trang_thai']
 
 
 class HinhAnhPhanAnhSerializer(serializers.ModelSerializer):

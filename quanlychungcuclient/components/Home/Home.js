@@ -16,6 +16,8 @@ const Home = () => {
         navigation.navigate("ParkingCardForR");
     if(item == "PhieuDongTien")
         navigation.navigate("PhieuDongTien");
+    if(item == "TuDoDienTu")
+        navigation.navigate("TuDoDienTu");
   };
 
   return (
@@ -31,6 +33,22 @@ const Home = () => {
             <View style={styles.textContainer}>
               <Title>Profile</Title>
               <Paragraph>Xem thông tin cá nhân</Paragraph>
+            </View>
+          </View>
+        </Card.Content>
+      </Card>
+    </View>
+    <View style={styles.content}>
+      <Card style={styles.card} onPress={() => handlePress("TuDoDienTu")}>
+        <Card.Content>
+          <View style={styles.profileContainer}>
+            <Avatar.Image 
+              size={50} 
+              source={require("../../assets/locker.jpg")} 
+            />
+            <View style={styles.textContainer}>
+              <Title>Tủ đồ điện tử</Title>
+              <Paragraph>Ban quản trị sẽ nhận đồ được đăng ký                 ở đây</Paragraph>
             </View>
           </View>
         </Card.Content>
