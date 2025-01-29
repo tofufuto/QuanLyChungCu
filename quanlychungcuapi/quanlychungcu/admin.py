@@ -438,7 +438,7 @@ admin_site.register(ThongTinChuyenTien,AdminThongTinChuyenTien)
 admin_site.register(TheGiuXeNguoiThan,TheGiuXeAdmin)
 admin_site.register(TuDoDienTu,TuDoDienTuAdmin)
 admin_site.register(PhanAnh,PhanAnhAdmin)
-admin_site.register(HinhAnhPhanAnh,HinhAnhPhanAnhAdmin)
+#admin_site.register(HinhAnhPhanAnh,HinhAnhPhanAnhAdmin)
 admin_site.register(KhaoSat,KhaoSatAdmin)
 # admin_site.register(TraLoi,TraLoiAdmin)
 

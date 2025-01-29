@@ -1,3 +1,4 @@
+from argparse import Action
 from datetime import datetime
 
 from django.core.serializers import serialize
@@ -124,6 +125,17 @@ class NguoiDungViewSet(viewsets.ViewSet,generics.ListAPIView,generics.UpdateAPIV
         serializer = self.get_serializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    def get_permissions(self):
+        if self.action._eq__('current_user'):
+            return [permissions.IsAuthenticated()]
+
+        return [permissions.AllowAny()]
+
+    @action(methods=['get'], url_name='current-user', detail=False)
+    def current_user(self, request):
+        return Response(serializers.NguoiDungSerializer(request.user).data)
+
+
 class TheGiuXeViewSet(viewsets.ViewSet,generics.ListAPIView,generics.CreateAPIView,generics.RetrieveAPIView,generics.DestroyAPIView):
     queryset = TheGiuXeNguoiThan.objects.filter(active=True).all()
     serializer_class = serializers.TheGiuXeSerializer
@@ -186,3 +198,7 @@ class PhanAnhViewSet(viewsets.ViewSet,generics.ListAPIView):
     queryset = PhanAnh.objects.filter(active=True).all()
     serializer_class = serializers.PhanAnhSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+
+
+

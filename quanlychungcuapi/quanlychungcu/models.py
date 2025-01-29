@@ -7,6 +7,8 @@ from cloudinary import CloudinaryImage
 from cloudinary.models import CloudinaryField
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db.models import Model
+
 from quanlychungcu import PhieuStatus, PhanAnhStatus
 from django.utils.timezone import now
 from django.utils import timezone
@@ -137,3 +139,5 @@ class ThongTinChuyenTien(BaseModel):
     class Meta:
         verbose_name = "Thông tin chuyển tiền"
         verbose_name_plural = "Thông tin chuyển tiền"
+
+
