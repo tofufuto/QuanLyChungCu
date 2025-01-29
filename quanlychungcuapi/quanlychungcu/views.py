@@ -127,15 +127,6 @@ class NguoiDungViewSet(viewsets.ViewSet,generics.ListAPIView,generics.UpdateAPIV
         serializer = self.get_serializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def get_permissions(self):
-        if self.action.__eq__('current_user'):
-            return [permissions.IsAuthenticated()]
-
-        return [permissions.AllowAny()]
-
-    @action(methods=['get'], url_name='current-user', detail=False)
-    def current_user(self, request):
-        return Response(serializers.NguoiDungSerializer(request.user).data)
 
 
 class TheGiuXeViewSet(viewsets.ViewSet,generics.ListAPIView,generics.CreateAPIView,generics.RetrieveAPIView,generics.DestroyAPIView):
