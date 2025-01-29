@@ -212,28 +212,55 @@ class TraLoiViewSet(viewsets.ViewSet):
         return Response(saved_answers, status=status.HTTP_201_CREATED)
 
 
-class TuDoDienTuViewSet(viewsets.ViewSet,generics.ListAPIView):
+class TuDoDienTuViewSet(viewsets.ViewSet, generics.ListAPIView, generics.CreateAPIView):
     queryset = TuDoDienTu.objects.filter(active=True).all()
     serializer_class = serializers.TuDoDienTuSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-class PhanAnhViewSet(viewsets.ModelViewSet):
-    queryset = PhanAnh.objects.all().order_by('-created_date')
-    serializer_class = PhanAnhSerializer
+    def create(self, request, *args, **kwargs):
+        # Kiểm tra request.user
+        if not request.user or request.user.is_anonymous:
+            return Response({"error": "User authentication required"}, status=status.HTTP_401_UNAUTHORIZED)
 
-    def get_permissions(self):
-        if self.action in ['create']:
-            return [permissions.IsAuthenticated()]  # Người dùng phải đăng nhập mới được tạo phản ánh
-        return [permissions.IsAdminUser()]  # Admin có thể xem & cập nhật phản ánh nhưng không tạo mới
+        # Gán các giá trị từ request, mặc định 'trang_thai' là 'empty'
+        data = request.data.copy()
+        data['nguoi_dung'] = request.user.id  # Gán ID người dùng hiện tại
+        data['created_date'] = datetime.now()
+
+        # Nếu không truyền 'trang_thai', mặc định sẽ là 'empty'
+        if 'trang_thai' not in data:
+            data['trang_thai'] = 'empty'
+
+        # Sử dụng serializer để lưu dữ liệu
+        serializer = self.get_serializer(data=data)
+        if serializer.is_valid():
+            serializer.save()  # Lưu dữ liệu
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class PhanAnhViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        """
+        Chỉ lấy phản ánh của người dùng hiện tại.
+        """
+        return PhanAnh.objects.filter(nguoi_dung=self.request.user)
+
+    def get_serializer_class(self):
+        """
+        Dùng serializer phù hợp cho từng loại request:
+        - `POST`: Dùng `PhanAnhCreateSerializer` để hỗ trợ danh sách ảnh
+        - `GET`: Dùng `PhanAnhSerializer` (không lấy ảnh trong list API)
+        """
+        if self.action == 'create':
+            return serializers.PhanAnhCreateSerializer
+        return serializers.PhanAnhSerializer
 
     def perform_create(self, serializer):
-        serializer.save(nguoi_dung=self.request.user)  # Gán người dùng hiện tại làm chủ phản ánh
-
-    def create(self, request, *args, **kwargs):
-        if request.user.is_staff:
-            return Response({"detail": "Admin không thể tạo phản ánh."}, status=403)
-        return super().create(request, *args, **kwargs)
-
-
-
+        """
+        Tạo phản ánh với người dùng hiện tại.
+        """
+        serializer.save(nguoi_dung=self.request.user)
 

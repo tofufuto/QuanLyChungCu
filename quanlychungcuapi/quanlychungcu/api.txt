@@ -89,3 +89,89 @@ chi_tiet_khao_sat : <id>
         "tra_loi": "Không đồng ý"
     }
 ]
+http://127.0.0.1:8000/tudodientus/
+GET all
+{
+    "count": 2,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": 1,
+            "ten_do": "do 1",
+            "mo_ta": "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+            "ngay_nhan_hang": "2025-01-30",
+            "nguoi_dung": 2
+        },
+        {
+            "id": 2,
+            "ten_do": "200 blek man",
+            "mo_ta": "neeegaaaaa",
+            "ngay_nhan_hang": null,
+            "nguoi_dung": 2
+        }
+    ]
+}
+POST
+{
+    "ten_do": [
+        "This field is required."
+    ],
+    "mo_ta": [
+        "This field is required."
+    ]
+}
+
+phananhs/
+GET all
+{
+    "count": 2,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": 1,
+            "tieu_de": "phan anh client1",
+            "noi_dung": "noi dung phan anh 1",
+            "status": "waiting",
+            "nguoi_dung": 2,
+            "hinh_anh_phan_anhs": []
+        },
+        {
+            "id": 2,
+            "tieu_de": "phan anh client1 2",
+            "noi_dung": "noi dung phan anh 2",
+            "status": "waiting",
+            "nguoi_dung": 2,
+            "hinh_anh_phan_anhs": []
+        }
+    }
+}
+get <id>
+{
+    "id": 1,
+    "tieu_de": "phan anh client1",
+    "noi_dung": "noi dung phan anh 1",
+    "status": "waiting",
+    "nguoi_dung": 2,
+    "hinh_anh_phan_anhs": [
+        {
+            "image": "image/upload/URL_1"
+        },
+        {
+            "image": "image/upload/URL_2"
+        }
+    ]
+}
+POST
+"tieu_de": "phan anh client1 2",
+    "noi_dung": "noi dung phan anh 2",
+    "hinh_anh_phan_anhs": [
+        {
+            "image": "https://res.cloudinary.com/dv1nnzhrq/image/upload/v1738080313/slc7hzo2nxd7zs97kufn.jpg"
+        },
+        {
+            "image": "https://res.cloudinary.com/dv1nnzhrq/image/upload/v1738080313/slc7hzo2nxd7zs97kufn.jpg"
+        }
+    ]
+}

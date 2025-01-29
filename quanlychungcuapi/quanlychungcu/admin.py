@@ -369,6 +369,7 @@ class TuDoDienTuAdmin(admin.ModelAdmin):
     list_display = ('ten_do', 'trang_thai', 'nguoi_dung','ngay_nhan_hang')
     list_filter = ('trang_thai',)
     search_fields = ('tieu_de', 'noi_dung', 'nguoi_dung')
+    readonly_fields =  ['created_date','update_date','ten_do', 'nguoi_dung','ngay_nhan_hang','mo_ta']
 
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
@@ -388,27 +389,35 @@ class TuDoDienTuAdmin(admin.ModelAdmin):
 
 
 
-class HinhAnhPhanAnhInline(admin.TabularInline):
-    model = HinhAnhPhanAnh
-    extra = 0
-    readonly_fields = ('preview',)
 
-    def preview(self, obj):
+class HinhAnhPhanAnhInline(admin.StackedInline):
+    model = HinhAnhPhanAnh
+    extra = 0  # Không thêm form trống
+    fields = ['image_preview']  # Hiển thị trường ảnh và ảnh xem trước
+    readonly_fields = ['image_preview']  # Không cho sửa ảnh xem trước
+    max_num = 0
+    can_delete = False
+
+    def image_preview(self, obj):
+        """
+        Hiển thị ảnh thay vì chỉ là URL
+        """
         if obj.image:
-            return format_html('<img src="{}" width="100" height="100" style="object-fit: cover;"/>', obj.image.url)
-        return "-"
-    preview.short_description = "Xem trước ảnh"
+            return format_html('<img src="{}" style="max-height: 300px; max-width: 300px;" />', obj.image.url)
+        return "(Không có ảnh)"
+
+    image_preview.short_description = "Ảnh xem trước"
+
 
 
 class PhanAnhAdmin(admin.ModelAdmin):
-    list_display = ("id", "nguoi_dung", "tieu_de", "status", "created_date")
-    list_filter = ("status",)
-    search_fields = ("tieu_de", "noi_dung", "nguoi_dung__username")
-    readonly_fields = ("nguoi_dung", "tieu_de", "noi_dung")
+    list_display = ('tieu_de', 'noi_dung', 'status', 'nguoi_dung')  # Các cột hiển thị trong list view
     inlines = [HinhAnhPhanAnhInline]
+    readonly_fields = ['created_date','update_date','noi_dung','tieu_de','nguoi_dung']
 
-    def has_add_permission(self, request):
-        return False  # Không cho phép admin tạo phản ánh mới
+
+
+
 
 
 class TraLoiAdmin(admin.ModelAdmin):
@@ -424,7 +433,8 @@ admin_site.register(ThongTinChuyenTien,AdminThongTinChuyenTien)
 admin_site.register(TheGiuXeNguoiThan,TheGiuXeAdmin)
 admin_site.register(TuDoDienTu,TuDoDienTuAdmin)
 admin_site.register(PhanAnh,PhanAnhAdmin)
-#admin_site.register(HinhAnhPhanAnh,HinhAnhPhanAnhAdmin)
+
+
 admin_site.register(KhaoSat,KhaoSatAdmin)
 # admin_site.register(TraLoi,TraLoiAdmin)
 
