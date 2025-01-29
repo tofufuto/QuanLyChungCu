@@ -12,7 +12,8 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
 from quanlychungcu import serializers, VNP_HASHSECRET, PhieuStatus
-from quanlychungcu.models import PhieuDongTien, NguoiDung, TheGiuXeNguoiThan, ThongTinChuyenTien, KhaoSat, TraLoi
+from quanlychungcu.models import PhieuDongTien, NguoiDung, TheGiuXeNguoiThan, ThongTinChuyenTien, KhaoSat, TraLoi, \
+    TuDoDienTu, PhanAnh
 from quanlychungcu.serializers import PhieuDongTienChiTietSerializer, PhieuDongTienSerializer
 from quanlychungcu.vnpay import vnpay
 
@@ -175,3 +176,13 @@ class TraLoiVewSet(viewsets.ViewSet,generics.CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(nguoi_dung=self.request.user)
+
+class TuDoDienTuViewSet(viewsets.ViewSet,generics.ListAPIView):
+    queryset = TuDoDienTu.objects.filter(active=True).all()
+    serializer_class = serializers.TuDoDienTuSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+class PhanAnhViewSet(viewsets.ViewSet,generics.ListAPIView):
+    queryset = PhanAnh.objects.filter(active=True).all()
+    serializer_class = serializers.PhanAnhSerializer
+    permission_classes = [permissions.IsAuthenticated]

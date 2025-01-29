@@ -13,6 +13,8 @@ r.register('thegiuxes',views.TheGiuXeViewSet,basename='thegiuxe')
 r.register('thongtinchuyentiens',views.ThongTinChuyenTienViewSet,basename='thongtinchuyentien')
 r.register('khaosats',views.KhaoSatViewSet,basename='khaosat')
 r.register('traloi',views.TraLoiVewSet,basename='traloi')
+r.register('tudodientus',views.TuDoDienTuViewSet,basename='tudodientu')
+r.register('phananhs',views.PhanAnhViewSet,basename='phananh')
 
 
 urlpatterns = [

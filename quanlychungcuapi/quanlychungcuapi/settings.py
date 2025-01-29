@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'quanlychungcu.apps.QuanlychungcuConfig',
     'rest_framework',
     'oauth2_provider',
-    'ckeditor',
 ]
 
 MIDDLEWARE = [
