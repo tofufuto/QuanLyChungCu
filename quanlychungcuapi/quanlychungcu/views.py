@@ -31,7 +31,13 @@ class PhieuDongTienViewSet(viewsets.ViewSet,generics.ListAPIView,generics.Retrie
 
     def get_queryset(self):
         # Lọc các bản ghi PhieuDongTien cho người dùng hiện tại
-        return PhieuDongTien.objects.filter(active=True, nguoi_dung=self.request.user).order_by('-id')
+        queryset =  PhieuDongTien.objects.filter(active=True, nguoi_dung=self.request.user).order_by('-id')
+
+        keyword = self.request.query_params.get('keyword', None)
+        if keyword:
+            queryset = queryset.filter(status__icontains=keyword)  # Lọc theo từ khóa không phân biệt hoa thường
+
+        return queryset
 
     def retrieve(self, request, *args, **kwargs):
         # Lấy một Phiếu đóng tiền cho người dùng hiện tại
@@ -212,9 +218,7 @@ class TuDoDienTuViewSet(viewsets.ViewSet, generics.ListAPIView, generics.CreateA
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        """
-        Lọc danh sách theo `ten_do` nếu có từ khóa tìm kiếm.
-        """
+
         queryset = TuDoDienTu.objects.filter(active=True).order_by('-id')
 
         # Lấy từ khóa tìm kiếm từ request

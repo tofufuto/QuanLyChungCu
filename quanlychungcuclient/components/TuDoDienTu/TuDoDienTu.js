@@ -38,7 +38,7 @@ const TuDoDienTu = ({ navigation }) => {
   }, [navigation, searchKeyword]);
 
   const handleAddItem = () => {
-    console.log("Thêm mới item"); // Thay thế bằng logic thêm item thực tế
+     navigation.navigate("DangKyTuDo");
   };
 
   useEffect(() => {
@@ -126,13 +126,13 @@ const TuDoDienTu = ({ navigation }) => {
 
 const styles = StyleSheet.create({
     searchContainer: {
-      flexGrow: 1, // Tự mở rộng theo header
+      flexGrow: 1,
       backgroundColor: '#f0f0f0',
       borderRadius: 8,
       paddingHorizontal: 10,
       justifyContent: 'center',
-      width: '100%', // Dùng 100% thay vì 90%
-      minWidth: 250, // Đảm bảo không bị quá nhỏ
+      width: '100%', 
+      minWidth: 250, 
     },
     searchInput: {
       height: 40,
@@ -140,7 +140,13 @@ const styles = StyleSheet.create({
       color: 'black',
     },
     addButton: {
-        marginRight: 15, // Tạo khoảng cách từ lề phải
+        marginRight: 15, 
+      },
+      card:{
+        width:'auto',
+        height :'auto',
+        margin :10,
+        flex:1,
       },
   });
 
