@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useLayoutEffect } from 'react';
-import { View, FlatList, Text, StyleSheet, ActivityIndicator, TextInput, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState, useLayoutEffect, useCallback } from 'react';
+import { View, FlatList, Text, StyleSheet, ActivityIndicator, TextInput, TouchableOpacity, RefreshControl } from 'react-native';
 import { Card } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import APIs, { endpoints } from '../../configs/APIs';
@@ -11,6 +11,7 @@ const TuDoDienTu = ({ navigation }) => {
   const [nextPage, setNextPage] = useState(null);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
 
   // Cập nhật header chỉ khi `searchKeyword` thay đổi
   useLayoutEffect(() => {
@@ -38,7 +39,7 @@ const TuDoDienTu = ({ navigation }) => {
   }, [navigation, searchKeyword]);
 
   const handleAddItem = () => {
-     navigation.navigate("DangKyTuDo");
+    navigation.navigate("DangKyTuDo");
   };
 
   useEffect(() => {
@@ -66,6 +67,7 @@ const TuDoDienTu = ({ navigation }) => {
     } finally {
       setLoading(false);
       setIsLoadingMore(false);
+      setRefreshing(false); // Đảm bảo rằng khi tải xong, refreshing sẽ được tắt
     }
   };
 
@@ -74,6 +76,11 @@ const TuDoDienTu = ({ navigation }) => {
     setIsLoadingMore(true);
     loadTudodientus(nextPage, searchKeyword);
   };
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    loadTudodientus(1, searchKeyword);
+  }, [searchKeyword]);
 
   const getStatusColor = (status) => {
     return status === 'empty' ? '#d3d3d3' : '#90ee90';
@@ -118,6 +125,7 @@ const TuDoDienTu = ({ navigation }) => {
           onEndReached={loadMoreData}
           onEndReachedThreshold={0.5}
           ListFooterComponent={renderFooter}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         />
       )}
     </View>
@@ -125,29 +133,29 @@ const TuDoDienTu = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-    searchContainer: {
-      flexGrow: 1,
-      backgroundColor: '#f0f0f0',
-      borderRadius: 8,
-      paddingHorizontal: 10,
-      justifyContent: 'center',
-      width: '100%', 
-      minWidth: 250, 
-    },
-    searchInput: {
-      height: 40,
-      fontSize: 16,
-      color: 'black',
-    },
-    addButton: {
-        marginRight: 15, 
-      },
-      card:{
-        width:'auto',
-        height :'auto',
-        margin :10,
-        flex:1,
-      },
-  });
+  searchContainer: {
+    flexGrow: 1,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    justifyContent: 'center',
+    width: '100%',
+    minWidth: 250,
+  },
+  searchInput: {
+    height: 40,
+    fontSize: 16,
+    color: 'black',
+  },
+  addButton: {
+    marginRight: 15,
+  },
+  card: {
+    width: 'auto',
+    height: 'auto',
+    margin: 10,
+    flex: 1,
+  },
+});
 
 export default TuDoDienTu;

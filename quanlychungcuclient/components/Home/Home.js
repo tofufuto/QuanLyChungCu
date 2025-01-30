@@ -18,6 +18,10 @@ const Home = () => {
         navigation.navigate("PhieuDongTien");
     if(item == "TuDoDienTu")
         navigation.navigate("TuDoDienTu");
+    if(item == "KhaoSat")
+      navigation.navigate("KhaoSat");
+    if(item == "PhanAnh")
+      navigation.navigate("PhanAnh");
   };
 
   return (
@@ -48,7 +52,7 @@ const Home = () => {
             />
             <View style={styles.textContainer}>
               <Title>Tủ đồ điện tử</Title>
-              <Paragraph>Ban quản trị sẽ nhận đồ được đăng ký                 ở đây</Paragraph>
+              <Paragraph>Ban quản trị sẽ nhận đồ được đăng ký ở đây</Paragraph>
             </View>
           </View>
         </Card.Content>
@@ -64,7 +68,7 @@ const Home = () => {
             />
             <View style={styles.textContainer}>
               <Title>Phiếu đống tiền</Title>
-              <Paragraph>Xem các phiếu đống tiền và upload màn          hình ủy nhiệm</Paragraph>
+              <Paragraph>Xem các phiếu đống tiền và upload màn hình                         ủy nhiệm</Paragraph>
             </View>
           </View>
         </Card.Content>
@@ -80,7 +84,39 @@ const Home = () => {
             />
             <View style={styles.textContainer}>
               <Title>Thẻ giữ xe cho người thân</Title>
-              <Paragraph>Xem các thẻ giữ xe hoặc đăng ký thẻ cho người thân</Paragraph>
+              <Paragraph>Xem các thẻ giữ xe hoặc đăng ký thẻ cho                 người thân</Paragraph>
+            </View>
+          </View>
+        </Card.Content>
+      </Card>
+    </View>
+    <View style={styles.content}>
+      <Card style={styles.card} onPress={() => handlePress("PhanAnh")}>
+        <Card.Content>
+          <View style={styles.profileContainer}>
+            <Avatar.Image 
+              size={50} 
+              source={require("../../assets/report.jpg")} 
+            />
+            <View style={styles.textContainer}>
+              <Title>Phản ánh</Title>
+              <Paragraph>Đăng phản ánh để góp ý cho admin</Paragraph>
+            </View>
+          </View>
+        </Card.Content>
+      </Card>
+    </View>
+    <View style={styles.content}>
+      <Card style={styles.card} onPress={() => handlePress("KhaoSat")}>
+        <Card.Content>
+          <View style={styles.profileContainer}>
+            <Avatar.Image 
+              size={50} 
+              source={require("../../assets/survey.png")} 
+            />
+            <View style={styles.textContainer}>
+              <Title>Khảo sát</Title>
+              <Paragraph>Xem và thực hiện các khảo sát</Paragraph>
             </View>
           </View>
         </Card.Content>
@@ -96,7 +132,7 @@ const Home = () => {
             />
             <View style={styles.textContainer}>
               <Title>Thông tin chuyển tiền</Title>
-              <Paragraph>Xem thông tin tài khoảng để chuyển các khoảng phí của chung cư</Paragraph>
+              <Paragraph>Xem thông tin tài khoảng để chuyển các              khoảng phí của chung cư</Paragraph>
             </View>
           </View>
         </Card.Content>

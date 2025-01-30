@@ -9,6 +9,9 @@ export const endpoints={
     'thegiuxes':'/thegiuxes',
     'phieudongtiens':'/phieudongtiens',
     'tudodientus':'/tudodientus',
+    'khaosats':'/khaosats',
+    'traloi':'/traloi',
+    'phananhs':'/phananhs',
 }
 
 export default axios.create({

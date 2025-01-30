@@ -13,6 +13,11 @@ import PhieuDongTien from './components/PhieuDongTien/PhieuDongTien';
 import ChiTietPhieuDongTien from './components/PhieuDongTien/ChiTietPhieuDongTien';
 import TuDoDienTu from './components/TuDoDienTu/TuDoDienTu';
 import DangKyTuDo from './components/TuDoDienTu/DangKyTuDo';
+import KhaoSat from './components/KhaoSat/KhaoSat';
+import ChiTietKhaoSat from './components/KhaoSat/ChiTietKhaoSat';
+import PhanAnh from './components/PhanAnh/PhanAnh';
+import ChiTietPhanAnh from './components/PhanAnh/ChiTietPhanAnh';
+import TaoPhanAnh from './components/PhanAnh/TaoPhanAnh';
 const Stack = createStackNavigator();
 
 
@@ -31,6 +36,11 @@ export default function App() {
       <Stack.Screen name="ChiTietPhieuDongTien" component={ChiTietPhieuDongTien} />
       <Stack.Screen name="TuDoDienTu" component={TuDoDienTu} />
       <Stack.Screen name="DangKyTuDo" component={DangKyTuDo} />
+      <Stack.Screen name="KhaoSat" component={KhaoSat} />
+      <Stack.Screen name="ChiTietKhaoSat" component={ChiTietKhaoSat} />
+      <Stack.Screen name="PhanAnh" component={PhanAnh} />
+      <Stack.Screen name="ChiTietPhanAnh" component={ChiTietPhanAnh} />
+      <Stack.Screen name="TaoPhanAnh" component={TaoPhanAnh} />
     </Stack.Navigator>
   </NavigationContainer>
 

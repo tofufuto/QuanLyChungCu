@@ -115,10 +115,15 @@ class KhaoSatSerializer(serializers.ModelSerializer):
         return None  # Không trả về chi tiết khi gọi danh sách
 
     def get_da_tra_loi(self, obj):
-        """
-        Kiểm tra xem có câu trả lời nào thuộc khảo sát này không
-        """
-        return TraLoi.objects.filter(chi_tiet_khao_sat__khao_sat=obj).exists()
+
+        request = self.context.get('request', None)
+        if not request or not request.user.is_authenticated:
+            return False
+
+        return TraLoi.objects.filter(
+            nguoi_dung=request.user,
+            chi_tiet_khao_sat__khao_sat=obj
+        ).exists()
 
 class TraLoiSerializer(serializers.ModelSerializer):
     class Meta:
