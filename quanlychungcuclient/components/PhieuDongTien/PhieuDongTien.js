@@ -6,32 +6,29 @@ import APIs, { endpoints } from '../../configs/APIs';
 
 const PhieuDongTien = ({ navigation }) => {
   const [phieuDongTien, setPhieuDongTien] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [nextPage, setNextPage] = useState(1);
+  const [nextPage, setNextPage] = useState(null);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState('ALL');
 
   useEffect(() => {
-    fetchPhieuDongTien();
-  }, []);
+    fetchPhieuDongTien(1, selectedStatus);
+  }, [selectedStatus]);
 
-  useEffect(() => {
-    filterByStatus(selectedStatus);
-  }, [selectedStatus, phieuDongTien]);
-
-  const fetchPhieuDongTien = async (page = 1) => {
+  const fetchPhieuDongTien = async (page = 1, status = 'ALL') => {
     setLoading(true);
     try {
       const token = await AsyncStorage.getItem('LOGIN_TOKEN');
-      const response = await APIs.get(`${endpoints.phieudongtiens}?page=${page}`, {
+      const keyword = status !== 'ALL' ? `&keyword=${status}` : '';
+      const url = `${endpoints.phieudongtiens}?page=${page}${keyword}`;
+      
+      const response = await APIs.get(url, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
-
+      
       if (response.status === 200) {
-        const newData = [...phieuDongTien, ...response.data.results];
-        setPhieuDongTien(newData);
-        setNextPage(response.data.next ? page + 1 : null);
+        setPhieuDongTien(page === 1 ? response.data.results : [...phieuDongTien, ...response.data.results]);
+        setNextPage(response.data.next);
       } else {
         console.error('Lỗi khi tải dữ liệu');
       }
@@ -47,53 +44,22 @@ const PhieuDongTien = ({ navigation }) => {
   const loadMoreData = () => {
     if (nextPage && !isFetchingMore) {
       setIsFetchingMore(true);
-      fetchPhieuDongTien(nextPage);
+      const nextPageNum = new URL(nextPage).searchParams.get("page");
+      fetchPhieuDongTien(nextPageNum, selectedStatus);
     }
   };
 
-  const getStatusLabel = (status) => {
-    switch (status) {
-      case 'WAITING':
-        return { label: '⏳ Đang chờ', color: '#ffa500' };
-      case 'APPROVED':
-        return { label: '✅ Đã duyệt', color: '#28a745' };
-      case 'REJECTED':
-        return { label: '❌ Bị từ chối', color: '#dc3545' };
-      default:
-        return { label: '⚠️ Không xác định', color: '#6c757d' };
-    }
-  };
-
-  const formatCurrency = (amount) => {
-    return amount.toLocaleString('vi-VN'); // Định dạng theo chuẩn Việt Nam (có dấu phẩy)
-  };
-
-  const handlePress = (item) => {
-      navigation.navigate("ChiTietPhieuDongTien",{id : item.id});
-  };
-
-  const filterByStatus = (status) => {
-    if (status === 'ALL') {
-      setFilteredData(phieuDongTien);
-    } else {
-      setFilteredData(phieuDongTien.filter(item => item.status === status));
-    }
-  };
-
-  const renderItem = ({ item }) => {
-    const statusInfo = getStatusLabel(item.status);
-    return (
-      <TouchableOpacity onPress={() => handlePress(item)} activeOpacity={0.7}>
-        <Card style={[styles.card, { borderLeftColor: statusInfo.color, borderLeftWidth: 5 }]}>
-          <Card.Content>
-            <Title>💰 Tổng tiền: {formatCurrency(item.tong_tien)} VNĐ</Title>
-            <Paragraph>📅 Ngày tạo: {item.created_date}</Paragraph>
-            <Paragraph style={{ color: statusInfo.color }}>📌 Trạng thái: {statusInfo.label}</Paragraph>
-          </Card.Content>
-        </Card>
-      </TouchableOpacity>
-    );
-  };
+  const renderItem = ({ item }) => (
+    <TouchableOpacity onPress={() => navigation.navigate("ChiTietPhieuDongTien", { id: item.id })} activeOpacity={0.7}>
+      <Card style={styles.card}>
+        <Card.Content>
+          <Title>💰 Tổng tiền: {item.tong_tien.toLocaleString('vi-VN')} VNĐ</Title>
+          <Paragraph>📅 Ngày tạo: {item.created_date}</Paragraph>
+          <Paragraph>📌 Trạng thái: {item.status}</Paragraph>
+        </Card.Content>
+      </Card>
+    </TouchableOpacity>
+  );
 
   return (
     <View style={styles.container}>
@@ -113,7 +79,7 @@ const PhieuDongTien = ({ navigation }) => {
         <ActivityIndicator size="large" color="#6200ea" />
       ) : (
         <FlatList
-          data={filteredData}
+          data={phieuDongTien}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderItem}
           onEndReached={loadMoreData}

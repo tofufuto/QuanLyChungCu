@@ -137,6 +137,7 @@ class TuDoDienTuSerializer(serializers.ModelSerializer):
         fields = ['id', 'ten_do', 'mo_ta', 'ngay_nhan_hang', 'nguoi_dung','trang_thai']
 
 
+
 class HinhAnhPhanAnhSerializer(serializers.ModelSerializer):
     class Meta:
         model = HinhAnhPhanAnh

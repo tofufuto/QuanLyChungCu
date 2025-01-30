@@ -12,6 +12,7 @@ import TaoTheGiuXe from './components/TheGiuXeChoNgThan/TaoTheGiuXe';
 import PhieuDongTien from './components/PhieuDongTien/PhieuDongTien';
 import ChiTietPhieuDongTien from './components/PhieuDongTien/ChiTietPhieuDongTien';
 import TuDoDienTu from './components/TuDoDienTu/TuDoDienTu';
+import DangKyTuDo from './components/TuDoDienTu/DangKyTuDo';
 const Stack = createStackNavigator();
 
 
@@ -29,6 +30,7 @@ export default function App() {
       <Stack.Screen name="PhieuDongTien" component={PhieuDongTien} />
       <Stack.Screen name="ChiTietPhieuDongTien" component={ChiTietPhieuDongTien} />
       <Stack.Screen name="TuDoDienTu" component={TuDoDienTu} />
+      <Stack.Screen name="DangKyTuDo" component={DangKyTuDo} />
     </Stack.Navigator>
   </NavigationContainer>
 
