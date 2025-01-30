@@ -175,6 +175,9 @@ class KhaoSatViewSet(viewsets.ViewSet,generics.ListAPIView,generics.RetrieveAPIV
     permission_classes =[permissions.IsAuthenticated]
     pagination_class = KhaoSatPagination
 
+    def get_queryset(self):
+        return  KhaoSat.objects.filter(active=True).order_by('-id')
+
 class TraLoiViewSet(viewsets.ViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -219,12 +222,12 @@ class TuDoDienTuViewSet(viewsets.ViewSet, generics.ListAPIView, generics.CreateA
 
     def get_queryset(self):
 
-        queryset = TuDoDienTu.objects.filter(active=True).order_by('-id')
+        queryset = TuDoDienTu.objects.filter(active=True,nguoi_dung=self.request.user).order_by('-id')
 
         # Lấy từ khóa tìm kiếm từ request
         keyword = self.request.query_params.get('keyword', None)
         if keyword:
-            queryset = queryset.filter(ten_do__icontains=keyword)  # Lọc theo từ khóa không phân biệt hoa thường
+            queryset = queryset.filter(ten_do__icontains=keyword,nguoi_dung=self.request.user)  # Lọc theo từ khóa không phân biệt hoa thường
 
         return queryset
 
@@ -256,10 +259,8 @@ class PhanAnhViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        """
-        Chỉ lấy phản ánh của người dùng hiện tại.
-        """
-        return PhanAnh.objects.filter(nguoi_dung=self.request.user)
+
+        return PhanAnh.objects.filter(nguoi_dung=self.request.user).order_by('-id')
 
     def get_serializer_class(self):
         """
@@ -272,7 +273,5 @@ class PhanAnhViewSet(viewsets.ModelViewSet):
         return serializers.PhanAnhSerializer
 
     def perform_create(self, serializer):
-        """
-        Tạo phản ánh với người dùng hiện tại.
-        """
+
         serializer.save(nguoi_dung=self.request.user)

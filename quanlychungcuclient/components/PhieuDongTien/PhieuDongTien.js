@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, FlatList, StyleSheet, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, FlatList, StyleSheet, ActivityIndicator, Alert, TouchableOpacity, RefreshControl } from 'react-native';
 import { Card, Title, Paragraph, SegmentedButtons } from 'react-native-paper';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import APIs, { endpoints } from '../../configs/APIs';
@@ -7,6 +7,7 @@ import APIs, { endpoints } from '../../configs/APIs';
 const PhieuDongTien = ({ navigation }) => {
   const [phieuDongTien, setPhieuDongTien] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [nextPage, setNextPage] = useState(null);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState('ALL');
@@ -15,17 +16,17 @@ const PhieuDongTien = ({ navigation }) => {
     fetchPhieuDongTien(1, selectedStatus);
   }, [selectedStatus]);
 
-  const fetchPhieuDongTien = async (page = 1, status = 'ALL') => {
-    setLoading(true);
+  const fetchPhieuDongTien = async (page = 1, status = 'ALL', isRefreshing = false) => {
+    if (!isRefreshing) setLoading(true);
     try {
       const token = await AsyncStorage.getItem('LOGIN_TOKEN');
       const keyword = status !== 'ALL' ? `&keyword=${status}` : '';
       const url = `${endpoints.phieudongtiens}?page=${page}${keyword}`;
-      
+
       const response = await APIs.get(url, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
-      
+
       if (response.status === 200) {
         setPhieuDongTien(page === 1 ? response.data.results : [...phieuDongTien, ...response.data.results]);
         setNextPage(response.data.next);
@@ -36,10 +37,19 @@ const PhieuDongTien = ({ navigation }) => {
       console.error('Lỗi kết nối API:', error);
       Alert.alert('Lỗi', 'Không thể tải danh sách phiếu đóng tiền.');
     } finally {
-      setLoading(false);
-      setIsFetchingMore(false);
+      if (isRefreshing) {
+        setRefreshing(false);
+      } else {
+        setLoading(false);
+        setIsFetchingMore(false);
+      }
     }
   };
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchPhieuDongTien(1, selectedStatus, true);
+  }, [selectedStatus]);
 
   const loadMoreData = () => {
     if (nextPage && !isFetchingMore) {
@@ -84,6 +94,7 @@ const PhieuDongTien = ({ navigation }) => {
           renderItem={renderItem}
           onEndReached={loadMoreData}
           onEndReachedThreshold={0.5}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
           ListFooterComponent={isFetchingMore ? <ActivityIndicator size="small" color="#6200ea" /> : null}
         />
       )}

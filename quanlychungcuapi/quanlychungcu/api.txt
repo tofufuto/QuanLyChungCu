@@ -165,7 +165,8 @@ get <id>
     ]
 }
 POST
-"tieu_de": "phan anh client1 2",
+}
+    "tieu_de": "phan anh client1 2",
     "noi_dung": "noi dung phan anh 2",
     "hinh_anh_phan_anhs": [
         {

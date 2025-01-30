@@ -80,7 +80,7 @@ const Profile = () => {
     <Text style={style.profile_text}>Ngày sinh: {userData.results[0].birthdate}</Text>
     </Card> 
     <Card style={[style.profile_card,style.profile_card_lightgreen]}>
-    <Text style={style.profile_text}>Phòng: {userData.results[0].phong.so_phong}</Text> 
+    <Text style={style.profile_text}>Phòng: {userData.results[0].phong ? userData.results[0].phong.so_phong : 'Chưa có phòng'}</Text> 
     </Card> 
     <Card style={[style.profile_card,style.profile_card_lightyellow]} onPress={() =>change_profile()}>
     <Text style={style.profile_text}>Đổi mật khẩu</Text> 
