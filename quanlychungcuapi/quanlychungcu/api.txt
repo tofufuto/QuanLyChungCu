@@ -9,6 +9,7 @@ chạy runserver xong rồi mở 1 command prompt khác chạy
 lt --port 8000 --subdomain quanlychungcuhuydung
 lt --port 8000 --subdomain quanlychungcuhuydung1
 
+cloudflared tunnel --url localhost:8000/
 Này để test thanh toán vnpay với react native
 
 

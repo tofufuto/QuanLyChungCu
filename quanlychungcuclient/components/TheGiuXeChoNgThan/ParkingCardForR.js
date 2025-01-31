@@ -3,12 +3,14 @@ import { View, FlatList, StyleSheet, ActivityIndicator, Alert } from 'react-nati
 import { Card, Title, Paragraph } from 'react-native-paper';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import APIs, { endpoints } from '../../configs/APIs';
+import { RefreshControl } from 'react-native-gesture-handler';
 
 const ParkingCardForR = ({ navigation }) => {  // Đảm bảo rằng navigation được truyền vào
   const [parkingCards, setParkingCards] = useState([]);
   const [loading, setLoading] = useState(true);
   const [nextPage, setNextPage] = useState(1);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     fetchParkingCards();
@@ -94,6 +96,12 @@ const ParkingCardForR = ({ navigation }) => {  // Đảm bảo rằng navigation
     });
   }, [navigation]);
 
+  const onRefresh = () =>{
+    setLoading(true);
+    setParkingCards([]);
+    fetchParkingCards();
+  };
+
   return (
     <View style={styles.container}>
       {loading && parkingCards.length === 0 ? (
@@ -105,6 +113,7 @@ const ParkingCardForR = ({ navigation }) => {  // Đảm bảo rằng navigation
           renderItem={renderItem}
           onEndReached={loadMoreData}
           onEndReachedThreshold={0.5} // Load thêm dữ liệu khi kéo xuống 50% cuối danh sách
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
           ListFooterComponent={isFetchingMore ? <ActivityIndicator size="small" color="#6200ea" /> : null}
         />
       )}

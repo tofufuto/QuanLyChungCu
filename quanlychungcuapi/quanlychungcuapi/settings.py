@@ -158,12 +158,12 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 5,
 
 }
-
+# nhớ thêm miền cloudflare dô
 CSRF_TRUSTED_ORIGINS = [
     "https://quanlychungcuhuydung.loca.lt"
 ]
 
-ALLOWED_HOSTS = ['.loca.lt', '127.0.0.1', 'localhost','quanlychungcuhuydung.loca.lt']
+ALLOWED_HOSTS = ['*']
 
 CKEDITOR_CONFIGS = {
     'default': {

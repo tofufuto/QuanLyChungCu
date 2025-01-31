@@ -1,6 +1,7 @@
 import axios from "axios"
 
-const BASE_URL = 'https://quanlychungcuhuydung1.loca.lt/'
+// const BASE_URL = 'https://quanlychungcuhuydung1.loca.lt/'
+const BASE_URL = '###'
 
 export const endpoints={
     'token':'/o/token/',
