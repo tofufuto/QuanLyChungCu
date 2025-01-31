@@ -3,12 +3,14 @@ import { View, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity, Alert 
 import { Card, Title, Paragraph } from 'react-native-paper';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import APIs, { endpoints } from '../../configs/APIs';
+import { RefreshControl } from 'react-native-gesture-handler';
 
 const KhaoSatScreen = ({ navigation }) => {
   const [khaoSats, setKhaoSats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [nextPage, setNextPage] = useState(null);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     fetchKhaoSats();
@@ -56,6 +58,11 @@ const KhaoSatScreen = ({ navigation }) => {
       </Card>
     </TouchableOpacity>
   );
+  const onRefresh = () =>{
+    setLoading(true);
+    setKhaoSats([]);
+    fetchKhaoSats();
+  };
 
   return (
     <View style={styles.container}>
@@ -68,6 +75,7 @@ const KhaoSatScreen = ({ navigation }) => {
           renderItem={renderItem}
           onEndReached={loadMoreData}
           onEndReachedThreshold={0.5}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
           ListFooterComponent={isFetchingMore ? <ActivityIndicator size="small" color="#6200ea" /> : null}
         />
       )}
