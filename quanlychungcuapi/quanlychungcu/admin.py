@@ -415,6 +415,9 @@ class PhanAnhAdmin(admin.ModelAdmin):
     inlines = [HinhAnhPhanAnhInline]
     readonly_fields = ['created_date','update_date','noi_dung','tieu_de','nguoi_dung']
 
+    def has_add_permission(self, request):
+        return False  # Trả về False để tắt nút "Add"
+
 
 
 

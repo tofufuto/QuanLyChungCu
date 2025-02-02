@@ -201,8 +201,8 @@ const styles = StyleSheet.create({
     color: '#6200ea',
   },
   image: {
-    width: '100%',
-    height: '100%',
+    width: '50',
+    height: '100',
     marginVertical: 10,
   },
   previewImage: {
