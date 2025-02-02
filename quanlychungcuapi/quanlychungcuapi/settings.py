@@ -160,7 +160,7 @@ REST_FRAMEWORK = {
 }
 # nhớ thêm miền cloudflare dô
 CSRF_TRUSTED_ORIGINS = [
-    "https://quanlychungcuhuydung.loca.lt"
+    # "https://quanlychungcuhuydung.loca.lt"
 ]
 
 ALLOWED_HOSTS = ['*']

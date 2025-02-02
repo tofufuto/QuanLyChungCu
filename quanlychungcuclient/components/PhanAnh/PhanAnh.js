@@ -102,7 +102,7 @@ const KhaoSat = ({ navigation }) => {
   return (
     <View style={{ flex: 1 }}>
       <Appbar.Header>
-        <Appbar.Content title="Khảo sát" />
+        <Appbar.Content title="Thêm phản ánh" />
         <Appbar.Action
           icon="plus"
           onPress={() => navigation.navigate('TaoPhanAnh')}
